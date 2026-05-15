@@ -1,0 +1,154 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  transition:
+    background-color var(--duration) var(--easing-default),
+    color var(--duration) var(--easing-default),
+    transform var(--duration-fast) var(--easing-default);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.sm {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 15px;
+}
+
+.md {
+  height: 44px;
+  padding: 0 24px;
+  font-size: 15px;
+}
+
+.lg {
+  height: 52px;
+  padding: 0 32px;
+  font-size: 16px;
+}
+
+.primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.primary:active:not(:disabled) {
+  background: var(--primary-pressed);
+}
+
+.primary:disabled {
+  background: var(--border);
+  color: var(--text-disabled);
+}
+
+.secondary {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-radius: var(--radius);
+}
+
+.secondary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary-soft) 80%, var(--primary) 20%);
+}
+
+.secondary:active:not(:disabled) {
+  background: color-mix(in srgb, var(--primary-soft) 60%, var(--primary) 40%);
+}
+
+.secondary:disabled {
+  background: var(--border);
+  color: var(--text-disabled);
+}
+
+.tertiary {
+  background: transparent;
+  color: var(--primary);
+  border-radius: var(--radius);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.tertiary:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tertiary:active:not(:disabled) {
+  background: var(--primary-soft);
+}
+
+.tertiary:disabled {
+  color: var(--text-disabled);
+}
+
+.destructive {
+  background: var(--error);
+  color: #ffffff;
+}
+
+.destructive:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--error) 85%, #000 15%);
+}
+
+.destructive:active:not(:disabled) {
+  background: color-mix(in srgb, var(--error) 70%, #000 30%);
+}
+
+.destructive:disabled {
+  background: var(--border);
+  color: var(--text-disabled);
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text);
+}
+
+.icon.sm {
+  width: 36px;
+  height: 36px;
+}
+
+.icon.lg {
+  width: 52px;
+  height: 52px;
+}
+
+.icon:hover:not(:disabled) {
+  background: var(--surface-sunken);
+}
+
+.icon:active:not(:disabled) {
+  background: var(--border);
+}
+
+.icon:disabled {
+  color: var(--text-disabled);
+}

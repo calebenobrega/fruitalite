@@ -1,0 +1,176 @@
+/* ── Layout ──────────────────────────────────── */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--viewport-padding);
+  padding-bottom: calc(80px + var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Header ──────────────────────────────────── */
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  padding: 8px 0 16px;
+  gap: 8px;
+}
+
+.backBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--text);
+  background: transparent;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--easing-default);
+}
+
+.backBtn:hover {
+  background: var(--surface-sunken);
+}
+
+.pageTitle {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  margin: 0;
+}
+
+.headerSpacer {
+  width: 44px;
+  flex-shrink: 0;
+}
+
+/* ── Search ──────────────────────────────────── */
+
+.searchWrap {
+  margin-bottom: 12px;
+}
+
+/* ── Filters ─────────────────────────────────── */
+
+.filtersWrap {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 16px;
+  padding-bottom: 2px;
+}
+
+.filtersWrap::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Product grid ────────────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.produtoCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 8px 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 88px;
+  transition:
+    background var(--duration) var(--easing-default),
+    border-color var(--duration) var(--easing-default);
+}
+
+.produtoCard:hover {
+  background: var(--surface-sunken);
+}
+
+.produtoCard:active {
+  transform: scale(0.98);
+}
+
+.produtoSelecionado {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  border-width: 2px;
+}
+
+.checkIndicator {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: transparent;
+  transition:
+    background var(--duration) var(--easing-default),
+    border-color var(--duration) var(--easing-default),
+    color var(--duration) var(--easing-default);
+}
+
+.produtoSelecionado .checkIndicator {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--on-primary);
+}
+
+.produtoEmoji {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.produtoNome {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ── Empty search state ──────────────────────── */
+
+.emptyBusca {
+  padding: 40px 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* ── Sticky footer ───────────────────────────── */
+
+.stickyFooter {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px var(--viewport-padding);
+  background: var(--background);
+  border-top: 1px solid var(--border);
+  z-index: 10;
+}

@@ -1,0 +1,297 @@
+/* ── Layout ──────────────────────────────────── */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--viewport-padding);
+  padding-bottom: calc(80px + var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+}
+
+/* ── Header ──────────────────────────────────── */
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 16px;
+}
+
+.backBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--text);
+  background: transparent;
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--easing-default);
+}
+
+.backBtn:hover {
+  background: var(--surface-sunken);
+}
+
+.pageTitle {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Item list ───────────────────────────────── */
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Item card ───────────────────────────────── */
+
+.itemCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.itemEmoji {
+  font-size: 22px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.itemNome {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.removerBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition:
+    background var(--duration-fast) var(--easing-default),
+    color var(--duration-fast) var(--easing-default);
+}
+
+.removerBtn:hover,
+.removerBtn:active {
+  background: var(--error-soft);
+  color: var(--error);
+}
+
+.itemControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Stepper ─────────────────────────────────── */
+
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 44px;
+}
+
+.stepBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text);
+  background: var(--surface-sunken);
+  flex-shrink: 0;
+  transition: background var(--duration-fast) var(--easing-default);
+}
+
+.stepBtn:hover {
+  background: var(--border);
+}
+
+.stepInput {
+  width: 48px;
+  height: 44px;
+  text-align: center;
+  font-family: var(--font-data);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  outline: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Unit selector ───────────────────────────── */
+
+.unidadeGroup {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 44px;
+}
+
+.unidadeBtn {
+  height: 44px;
+  padding: 0 12px;
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  flex-shrink: 0;
+  transition:
+    background var(--duration-fast) var(--easing-default),
+    color var(--duration-fast) var(--easing-default);
+}
+
+.unidadeBtn + .unidadeBtn {
+  border-left: 1px solid var(--border);
+}
+
+.unidadeActive {
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+
+/* ── Adicionar produto card ──────────────────── */
+
+.adicionarCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 16px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  transition:
+    background var(--duration-fast) var(--easing-default),
+    border-color var(--duration-fast) var(--easing-default);
+}
+
+.adicionarCard:hover,
+.adicionarCard:active {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  border-style: solid;
+}
+
+/* ── Secondary actions ───────────────────────── */
+
+.acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 0 8px;
+}
+
+.excluirBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 4px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  background: transparent;
+  border-radius: var(--radius);
+  transition: background var(--duration-fast) var(--easing-default);
+  width: 100%;
+  text-align: left;
+  color: var(--error);
+}
+
+.excluirBtn:hover {
+  background: var(--error-soft);
+}
+
+/* ── Inline confirmation ─────────────────────── */
+
+.confirmacao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: var(--error-soft);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--error);
+}
+
+.confirmacaoTexto {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--error);
+  margin: 0;
+}
+
+.confirmacaoBtns {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Sticky footer ───────────────────────────── */
+
+.stickyFooter {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px var(--viewport-padding);
+  background: var(--background);
+  border-top: 1px solid var(--border);
+  z-index: 10;
+}

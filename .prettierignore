@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+_brand_temp
+package-lock.json
+*.svg
+*.ico
+desktop.ini

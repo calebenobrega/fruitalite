@@ -1,0 +1,29 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px var(--viewport-padding) 40px;
+  gap: 48px;
+}
+
+.top {
+  display: flex;
+  justify-content: center;
+}
+
+.logo {
+  width: 200px;
+  height: auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
