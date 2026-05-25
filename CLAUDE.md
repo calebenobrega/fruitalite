@@ -6,81 +6,110 @@
 
 **FruitaLite** é a versão simplificada do projeto Fruita. Aplicativo **web mobile-only** para gestão de listas de compras hortifrúti — usuário único, sem backend, com fluxo em 3 fases (planejamento, comprando, concluída).
 
-- **Tipo:** projeto pessoal (não-acadêmico)
-- **Plataforma de desenvolvimento:** **web mobile-only** — React + Vite, viewport alvo 375px–430px, sem layout desktop. Em telas maiores o app aparece travado num container de até 480px centralizado.
-- **Plataforma de distribuição final:** **app Android nativo via Capacitor** (`.apk` instalável). Não é PWA, não é "site". O Capacitor envelopa o build do Vite numa WebView nativa em uma sprint dedicada no fim do projeto. iOS fica fora da v1 (precisa de Mac).
-- **Persistência:** localStorage (v1) — funciona dentro da WebView do Capacitor sem ajuste extra
+- **Tipo:** projeto pessoal + TCC (orientadora ciente)
+- **Repo:** github.com/calebenobrega/fruitalite — branch ativa: `master`
+- **Plataforma de desenvolvimento:** web mobile-only — React + Vite, viewport alvo 375px–430px, sem layout desktop. Em telas maiores o app aparece travado num container de até 480px centralizado.
+- **Plataforma de distribuição:** **PWA instalável** — Android via Chrome ("Adicionar à tela inicial") e iOS 15+ via Safari ("Adicionar à Tela de Início"). Sem Play Store, sem App Store, sem APK.
+- **Persistência:** localStorage (sem backend, sem sync)
 - **Usuário:** um por dispositivo, sem login real (só nome + tag de loja salvos local)
 
 ## Stack
 
-- **Frontend:** React + Vite + TypeScript
-- **Estilo:** CSS Modules ou Tailwind com tokens customizados (decisão do dev — sugestão: CSS Modules + variáveis CSS para começar enxuto)
-- **Estado global:** Zustand (simples, leve, perfeito pro escopo)
-- **Persistência:** localStorage com wrapper tipado
+- **Frontend:** React 19 + Vite + TypeScript
+- **Estilo:** CSS Modules + variáveis CSS (tokens em `src/styles/tokens.css`)
+- **Estado global:** Zustand 5 (4 stores persistidas + 1 efêmera)
+- **Persistência:** localStorage com wrapper tipado (`src/utils/storage.ts`)
 - **Ícones:** Lucide React
-- **Fontes:** Manrope + Inter (Google Fonts)
+- **Fontes:** Manrope + Inter (Google Fonts, cacheadas via Workbox)
 - **Router:** React Router v6
 - **Datas:** date-fns
-- **PDF (se entrar):** jsPDF
+- **PDF:** jsPDF + Web Share API (`src/utils/pdf.ts`)
+- **PWA:** vite-plugin-pwa + Workbox (service worker gerado automaticamente no build)
 
 > Sem backend. Sem ORM. Sem API. Tudo client-side.
+
+## Deploy
+
+- **Hosting:** Vercel free tier
+- **Deploy:** automático — cada `git push master` dispara build e deploy
+- **URL atual:** subdomínio Vercel (`.vercel.app`)
+- **Domínio futuro:** `app.fruita.com` (quando `fruita.com` for adquirido — atualizar `start_url` no manifest)
+- **Build local:** `npm run build` → `dist/` (inclui `sw.js` + `workbox-*.js`)
+- **Preview local:** `npx vite preview --port 4173` (SW só ativa no preview/prod, não em `npm run dev`)
+
+## Decisões de marca (PWA)
+
+- **name / short_name:** `"Fruita"` (exibido abaixo do ícone na Home Screen)
+- **theme_color:** `#2D4F3A` (verde primário — colore a status bar no Chrome antes da instalação)
+- **background_color:** `#2D4F3A` (splash enquanto o React carrega no iOS)
+- **Ícone fonte:** `public/brand/05_icone_app_quadrado.svg` → PNGs gerados em `public/brand/`
+- **Tipografia:** Manrope (display/body) + Inter (dados numéricos)
 
 ## Estrutura de pastas
 
 ```
 fruitalite/
 ├── public/
-│   └── brand/              # SVGs da logo (copiar do Fruita antigo)
+│   ├── brand/                       # SVGs + PNGs gerados (ícones PWA, favicon)
+│   │   ├── *.svg                    # logos e símbolos da marca
+│   │   ├── pwa-64x64.png
+│   │   ├── pwa-192x192.png          # Android Chrome install prompt
+│   │   ├── pwa-512x512.png
+│   │   ├── maskable-icon-512x512.png
+│   │   ├── apple-touch-icon-180x180.png  # iOS Home Screen
+│   │   └── favicon.ico
+│   └── manifest.webmanifest         # PWA manifest
 ├── src/
 │   ├── app/
-│   │   ├── App.tsx         # raiz + router
-│   │   ├── Layout.tsx      # shell com bottom nav
+│   │   ├── App.tsx                  # raiz + router
+│   │   ├── Layout.tsx               # shell com bottom nav
 │   │   └── routes.tsx
-│   ├── components/         # design system (Button, Card, Input, Chip, etc)
-│   │   ├── Button/
-│   │   ├── Card/
-│   │   ├── Input/
-│   │   ├── Chip/
-│   │   ├── BottomNav/
-│   │   └── ...
+│   ├── components/                  # design system (Button, Card, Input, Chip, etc)
 │   ├── features/
-│   │   ├── onboarding/     # tela 0
-│   │   ├── home/           # tela 1
-│   │   ├── catalogo/       # gestão do catálogo de produtos
+│   │   ├── onboarding/              # tela 0
+│   │   ├── home/                    # tela 1
+│   │   ├── catalogo/                # gestão do catálogo de produtos
 │   │   │   ├── CatalogoPage.tsx
 │   │   │   └── ProdutoEditSheet.tsx
-│   │   ├── listas/         # telas 3-7
-│   │   │   ├── pages/
-│   │   │   │   ├── SelecionarProdutos.tsx
-│   │   │   │   ├── ListaPlanejamento.tsx
-│   │   │   │   ├── ListaComprando.tsx
-│   │   │   │   └── ListaConcluida.tsx
-│   │   │   ├── components/
-│   │   │   └── hooks/
-│   │   └── anotacoes/      # tela 2
+│   │   ├── listas/                  # telas 3-7
+│   │   │   └── pages/
+│   │   │       ├── SelecionarProdutos.tsx
+│   │   │       ├── ListaPlanejamento.tsx
+│   │   │       ├── ListaComprando.tsx
+│   │   │       ├── ListaConcluida.tsx
+│   │   │       ├── ListaDetalhe.tsx
+│   │   │       └── ListasPage.tsx
+│   │   ├── anotacoes/               # tela 2
+│   │   │   └── hooks/useLembretes.ts  # polling de lembretes via setInterval
+│   │   └── configuracoes/           # backup JSON + logout
+│   ├── hooks/
+│   │   └── useLongPress.ts
 │   ├── stores/
-│   │   ├── usuarioStore.ts
-│   │   ├── listasStore.ts
-│   │   ├── catalogoStore.ts
-│   │   ├── anotacoesStore.ts
-│   │   └── toastStore.ts
+│   │   ├── usuarioStore.ts          # → 'fruitalite:usuario'
+│   │   ├── listasStore.ts           # → 'fruitalite:listas'
+│   │   ├── catalogoStore.ts         # → 'fruitalite:catalogo'
+│   │   ├── anotacoesStore.ts        # → 'fruitalite:anotacoes'
+│   │   └── toastStore.ts            # efêmero, sem persistência
 │   ├── data/
-│   │   └── catalogo.ts     # catálogo fixo de produtos
+│   │   └── catalogo.ts              # ~80+ produtos seed
 │   ├── types/
 │   │   └── index.ts
 │   ├── utils/
-│   │   ├── moeda.ts        # formatação BRL, conversão centavos
-│   │   ├── data.ts         # formatação datas, saudação dinâmica
-│   │   └── peso.ts         # conversão gramas/kg
+│   │   ├── moeda.ts                 # formatação BRL, conversão centavos
+│   │   ├── data.ts                  # formatação datas, saudação dinâmica
+│   │   ├── peso.ts                  # conversão gramas/kg
+│   │   ├── pdf.ts                   # jsPDF + Web Share API
+│   │   ├── backup.ts                # export/import JSON
+│   │   └── storage.ts               # wrapper tipado de localStorage
 │   ├── styles/
-│   │   ├── tokens.css      # variáveis CSS (cores, tipografia, etc)
+│   │   ├── tokens.css               # variáveis CSS (cores, tipografia, etc)
 │   │   └── globals.css
 │   └── main.tsx
 ├── index.html
+├── vercel.json                      # SPA rewrites + headers de cache para SW
 ├── package.json
 ├── tsconfig.json
-├── vite.config.ts
+├── vite.config.ts                   # aliases + vite-plugin-pwa configurado
 ├── CLAUDE.md
 ├── CONTEXTO.md
 └── DESIGN.md
@@ -97,18 +126,23 @@ fruitalite/
 | Tipos compartilhados | `src/types/index.ts` |
 | Estado global | `src/stores/` |
 | Backup/restore de dados | `src/utils/backup.ts` |
+| Geração e compartilhamento de PDF | `src/utils/pdf.ts` |
+| Configuração do service worker | `vite.config.ts` (VitePWA) |
+| Manifest PWA | `public/manifest.webmanifest` |
+| Roteamento e headers Vercel | `vercel.json` |
 
 ## Convenções de código
 
-- **Idioma:** PT-BR para domínio (`lista`, `produto`, `adicionarItem`, `calcularTotal`, `Comprador`). Inglês para infra (`useState`, `Router`, `Component`).
+- **Idioma:** PT-BR para domínio (`lista`, `produto`, `adicionarItem`, `calcularTotal`). Inglês para infra (`useState`, `Router`, `Component`).
 - **Comentários:** PT-BR sempre que se referem a regra de negócio. Inglês ok pra comentário técnico de framework.
 - **Strings de UI:** PT-BR sempre.
 - **Organização:** por feature, não por tipo. Cada feature tem suas pages, components e hooks juntos.
 - **Componentes:** functional components com hooks. Sem classes.
 - **Tipagem:** strict mode no tsconfig. Nunca `any`. Use `unknown` e estreite.
 - **Formatação:** Prettier + ESLint com config padrão react+typescript.
-- **Commits:** Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `style:`).
-- **Branches:** `main` estável. Mudanças grandes em `feature/<nome-curto>`.
+- **Commits:** Conventional Commits (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `style:`). Commits diretos na `master`.
+- **Branches:** `master` estável. Mudanças grandes em `feature/<nome-curto>` se necessário.
+- **Tags:** semver para releases (`lite-v1.0.0`, `lite-v2.0.0`). Tags de segurança antes de mudanças irreversíveis (`pre-X-migration`).
 
 ## Regras invioláveis ao gerar código
 
@@ -123,15 +157,18 @@ fruitalite/
 6. **Touch targets ≥ 44px.** Botões, ícones clicáveis, links — tudo respeita o mínimo.
 7. **Mobile-only.** Layout pensado para 375px–430px de viewport. Não criar breakpoints `@media (min-width: ...)`. O shell em `globals.css` trava a app num container `max-width: 480px` centralizado pra quando o usuário acessar do desktop, mas o design assume sempre celular.
 8. **Saudação dinâmica.** Sempre que mostrar saudação, usar função utilitária que retorna "Bom dia / Boa tarde / Boa noite" baseado em `new Date().getHours()`.
-9. **localStorage com wrapper tipado.** Nunca acessar `localStorage` direto em componente. Criar funções tipadas (ex: `salvarLista(lista: Lista)`, `carregarListas(): Lista[]`).
+9. **localStorage com wrapper tipado.** Nunca acessar `localStorage` direto em componente. Usar funções em `src/utils/storage.ts`.
 10. **Não inventar funcionalidades fora do escopo.** Antes de adicionar algo, conferir `CONTEXTO.md` seção "Fora do escopo". Se em dúvida, perguntar.
+11. **Não recriar Capacitor.** Nunca criar `android/`, `ios/`, `capacitor.config.*` ou instalar `@capacitor/*`. O app é PWA — qualquer feature mobile vai por API web padrão.
+12. **Antes de instalar dependência nova, justificar.** Este projeto tem escopo enxuto. Dependências novas devem ser discutidas antes de `npm install`.
+13. **Antes de mudança irreversível, criar tag de retorno.** Ex: `git tag pre-X-migration && git push --tags` antes de remover/migrar algo grande.
 
 ## Modelo de dados (referência rápida)
 
 ```ts
 type Fase = 'planejamento' | 'comprando' | 'concluida';
 type Unidade = 'caixas' | 'unidades' | 'kg';
-type Categoria = 'frutas' | 'verduras' | 'legumes';
+type Categoria = 'frutas' | 'verduras' | 'legumes' | 'raizes';
 
 type Usuario = {
   nome: string;
@@ -144,6 +181,7 @@ type Produto = {
   nome: string;
   emoji: string;
   categoria: Categoria;
+  pesoPorCaixaGramas?: number;
 };
 
 type ItemLista = {
@@ -151,6 +189,7 @@ type ItemLista = {
   quantidade: number;
   unidade: Unidade;
   valorUnitarioCentavos: number | null;
+  pesoPorCaixaGramas?: number;
 };
 
 type Lista = {
@@ -162,10 +201,17 @@ type Lista = {
   finalizadaEm: string | null;
 };
 
+type Lembrete = {
+  dataHora: string;   // ISO 8601
+  disparado: boolean;
+  visto: boolean;
+};
+
 type Anotacao = {
   id: string;
   titulo: string;
   conteudo: string;
+  lembrete: Lembrete | null;
   criadaEm: string;
   atualizadaEm: string;
 };
@@ -185,8 +231,8 @@ type Anotacao = {
 - F8. Barra de progresso da lista
 - F9. Finalizar lista
 - F10. Histórico de listas concluídas
-- F11. Anotações simples (CRUD)
-- F12. Compartilhar PDF da lista concluída via Share API nativa (Capacitor)
+- F11. Anotações simples (CRUD + lembretes por horário)
+- F12. Compartilhar PDF da lista concluída via Web Share API (iOS 15+ e Android Chrome) com fallback `doc.save()`
 - F13. Gestão do catálogo — CRUD de produtos (CatalogoPage + catalogoStore)
 - F14. Resumo/Estatísticas na Home — total gasto, ticket médio, produto mais comprado
 - F15. Backup/export JSON + import/restore (ConfiguracoesPage)
@@ -194,16 +240,26 @@ type Anotacao = {
 
 ## Fora do escopo (não implementar sem pedido explícito)
 
-- Backend / API
-- Login com senha, multi-usuário, sync entre devices
+- Backend / API / sincronização entre devices
+- Login com senha, multi-usuário
 - Divisão entre lojas
-- Push notifications / lembretes no sistema operacional
-- PWA (o app é Capacitor/Android, não PWA)
+- Push notifications reais (lembretes só disparam com app aberto — comportamento atual e aceitável)
+- Modo escuro
 - IA / sugestões automáticas
 - Multi-tag por usuário
-- Modo escuro
+- Play Store / App Store (decisão consciente)
+- Capacitor / APK / Android Studio build
 
 Se aparecer pedido nessa direção, **sinalizar que está fora do escopo antes de implementar**.
+
+## O que NÃO fazer neste repo
+
+- **Não recriar Capacitor** — não instalar `@capacitor/*`, não criar `android/`, `ios/`, `capacitor.config.*`
+- **Não adicionar backend, login ou analytics** — app é 100% client-side por design
+- **Não adicionar features de ERP, PDV, multi-usuário ou marketplace** — essas vivem no projeto Fruita comercial (repo separado, futuro)
+- **Não publicar na Play Store nem App Store** — PWA direto é a estratégia escolhida
+- **Não migrar dados do APK automaticamente** — re-cadastro é aceitável para a base mínima de usuários
+- **Não criar features sem conferir o escopo** — perguntar antes se houver dúvida
 
 ## Tarefas comuns e onde olhar primeiro
 
@@ -212,26 +268,57 @@ Se aparecer pedido nessa direção, **sinalizar que está fora do escopo antes d
 - **Mudar estado** → store correspondente em `src/stores/`
 - **Adicionar produto** → editar `src/data/catalogo.ts`
 - **Formatar moeda/data/peso** → usar utils em `src/utils/`
+- **Mudar manifest ou ícones** → `public/manifest.webmanifest` + `public/brand/`
+- **Mudar comportamento do service worker** → `vite.config.ts` (VitePWA > workbox)
 
 ## Como rodar localmente
 
 ```bash
 npm install
-npm run dev
-# abre em http://localhost:5173
+npm run dev           # dev server em http://localhost:5173 (SW não ativa aqui)
+
+npm run build         # build de produção → dist/
+npx vite preview --port 4173  # preview com SW ativo em http://localhost:4173
+
+npm run type-check    # TypeScript sem emitir arquivos
+npm run lint          # ESLint (máx 0 warnings)
 ```
 
-> Setup será criado quando você rodar o `npm create vite@latest fruitalite -- --template react-ts`
+## Frentes previstas
 
-## Sobre o projeto pai (Fruita original)
+**Curto prazo (neste repo):**
+- Polimento: bugs pós-migração PWA, microcopy, UX miúda, estados vazios, acessibilidade básica
+- README público no GitHub com instruções de instalação PWA
 
-Este projeto é a versão lite do Fruita original (projeto acadêmico). Não confundir os dois:
+**Médio prazo (neste repo):**
+- Eventual extração de design tokens para pacote `@fruita/design-tokens`
 
-- O Fruita original tinha multi-usuário, backend, divisão entre lojas, PDF, etc.
-- O FruitaLite é solo, client-side, sem divisão, foco no fluxo de 3 fases.
+**Fora deste repo (projetos futuros separados):**
+- Site institucional Fruita
+- Fruita comercial (B2B/SaaS, marketplace fornecedor↔varejo) — repo separado
+- Eventual convergência Lite + comercial sob marca única "FRUITA"
 
-Quando reaproveitar algo do original: apenas a **identidade visual** (logo SVG) e o **design system** (cores, tipografia, padrões de componente). Tudo o mais é redesenhado pro contexto enxuto.
+## Sobre os projetos Fruita
+
+| Projeto | Status | Descrição |
+|---|---|---|
+| **FruitaLite** | ✅ Ativo (este repo) | PWA pessoal, client-side, gratuito |
+| **Fruita original** | 📦 Arquivado (referência) | TCC acadêmico, multi-usuário, backend |
+| **Fruita comercial** | 🔮 Futuro (repo separado) | B2B/SaaS, marketplace, não confundir |
+
+Quando reaproveitar algo do original: apenas a **identidade visual** (logo SVG) e o **design system** (cores, tipografia). Tudo o mais é redesenhado pro contexto enxuto.
+
+## Histórico
+
+| Data | Marco | Tag git |
+|---|---|---|
+| 2026-05-15 | v1.0 lançada — APK Capacitor Android | `lite-v1.0.0` |
+| 2026-05-25 | Pré-migração PWA (ponto de retorno) | `pre-pwa-migration` |
+| 2026-05-25 | Migração APK → PWA concluída, deploy Vercel | _(master atual)_ |
+
+Para voltar ao estado do APK: `git checkout lite-v1.0.0`
+Para inspecionar o estado pré-migração: `git checkout pre-pwa-migration`
 
 ---
 
-*Última atualização: 2026-05-15 — v1.0 lançado.*
+*Última atualização: 2026-05-25 — migração APK → PWA concluída.*
