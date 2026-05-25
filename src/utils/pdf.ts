@@ -1,7 +1,4 @@
 import jsPDF from 'jspdf';
-import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Share } from '@capacitor/share';
 import type { Lista, Unidade } from '@t/index';
 import { useCatalogoStore } from '@stores/catalogoStore';
 import { formatarMoeda, formatarMoedaCompact } from '@utils/moeda';
@@ -163,31 +160,7 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
   const nomeArquivo = lista.nome.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_') || 'lista';
   const fileName = `${nomeArquivo}.pdf`;
 
-  // No app nativo (Android via Capacitor): gravar no cache interno + share sheet
-  if (Capacitor.isNativePlatform()) {
-    try {
-      const base64 = doc.output('datauristring').split(',')[1];
-      await Filesystem.writeFile({
-        path: fileName,
-        data: base64,
-        directory: Directory.Cache,
-      });
-      const uriResult = await Filesystem.getUri({
-        path: fileName,
-        directory: Directory.Cache,
-      });
-      await Share.share({
-        title: lista.nome,
-        url: uriResult.uri,
-        dialogTitle: 'Compartilhar lista',
-      });
-    } catch {
-      // Silently fail (user cancelou ou erro inesperado)
-    }
-    return;
-  }
-
-  // Web: Web Share API com arquivo, depois download como fallback
+  // Web Share API com arquivo PDF; fallback para download direto
   if (typeof navigator !== 'undefined' && 'share' in navigator) {
     try {
       const blob = doc.output('blob');
