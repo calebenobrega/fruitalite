@@ -40,12 +40,7 @@ _brand_temp
 # Claude Code settings (local only)
 .claude/
 
-# Android build artifacts (keep android/ source, ignore build output)
-android/.gradle/
-android/app/build/
-android/build/
-android/local.properties
-*.apk
-*.aab
-*.keystore
-*.jks
+# Capacitor (removido na migração PWA v1.1)
+android/
+ios/
+capacitor.config.*
