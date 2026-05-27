@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react';
 import { useCatalogoStore } from '@stores/catalogoStore';
 import { useToastStore } from '@stores/toastStore';
 import { Button } from '@components/Button';
-import type { Categoria, Produto } from '@t/index';
+import type { Categoria, Produto, Unidade } from '@t/index';
 import styles from './ProdutoEditSheet.module.css';
 
 const CATEGORIAS: { label: string; value: Categoria }[] = [
@@ -11,6 +11,13 @@ const CATEGORIAS: { label: string; value: Categoria }[] = [
   { label: 'Verduras', value: 'verduras' },
   { label: 'Legumes', value: 'legumes' },
   { label: 'Raízes', value: 'raizes' },
+  { label: 'Outros', value: 'outros' },
+];
+
+const UNIDADES: { label: string; value: Unidade }[] = [
+  { label: 'Caixas', value: 'caixas' },
+  { label: 'Unidades', value: 'unidades' },
+  { label: 'Kg', value: 'kg' },
 ];
 
 type Props = {
@@ -26,13 +33,15 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
   const show = useToastStore((s) => s.show);
 
   const [nome, setNome] = useState(produto?.nome ?? '');
-  const [emoji, setEmoji] = useState(produto?.emoji ?? '🥬');
+  const [emoji, setEmoji] = useState(produto?.emoji ?? '');
   const [categoria, setCategoria] = useState<Categoria>(produto?.categoria ?? 'frutas');
+  const [unidadePadrao, setUnidadePadrao] = useState<Unidade>(produto?.unidadePadrao ?? 'caixas');
   const [pesoKg, setPesoKg] = useState(() =>
     produto?.pesoPorCaixaGramas
       ? String(produto.pesoPorCaixaGramas / 1000).replace('.', ',')
       : '',
   );
+  const [ativo, setAtivo] = useState(produto?.ativo ?? true);
   const [confirmandoExcluir, setConfirmandoExcluir] = useState(false);
 
   useEffect(() => {
@@ -67,7 +76,7 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
   }
 
   const nomeValido = nome.trim().length > 0;
-  const emojiFinal = emoji.trim() === '' ? '🥬' : emoji;
+  const emojiFinal = emoji.trim() || undefined;
 
   function handleSalvar() {
     if (!nomeValido) return;
@@ -76,6 +85,8 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
       nome: nome.trim(),
       emoji: emojiFinal,
       categoria,
+      unidadePadrao,
+      ativo,
     };
     if (pesoGramas) dados.pesoPorCaixaGramas = pesoGramas;
 
@@ -131,11 +142,11 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
 
         <div className={styles.field}>
           <label className={styles.label} htmlFor="produto-emoji">
-            Emoji
+            Emoji <span className={styles.labelOpcional}>(opcional)</span>
           </label>
           <div className={styles.emojiRow}>
             <span className={styles.emojiPreview} aria-hidden="true">
-              {emojiFinal}
+              {emojiFinal ?? nome.slice(0, 2).toUpperCase() || '?'}
             </span>
             <input
               id="produto-emoji"
@@ -143,7 +154,7 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
               className={`${styles.input} ${styles.emojiInput}`}
               value={emoji}
               onChange={handleEmojiChange}
-              placeholder="🥭"
+              placeholder="Sem emoji → iniciais"
               maxLength={4}
             />
           </div>
@@ -159,6 +170,26 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
                 className={`${styles.catBtn} ${categoria === value ? styles.catActive : ''}`}
                 onClick={() => setCategoria(value)}
                 aria-pressed={categoria === value}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.field}>
+          <span className={styles.label}>Unidade padrão</span>
+          <p className={styles.helper}>
+            Pré-preenche a unidade ao adicionar à lista.
+          </p>
+          <div className={styles.categoriaGroup} role="radiogroup">
+            {UNIDADES.map(({ label, value }) => (
+              <button
+                key={value}
+                type="button"
+                className={`${styles.catBtn} ${unidadePadrao === value ? styles.catActive : ''}`}
+                onClick={() => setUnidadePadrao(value)}
+                aria-pressed={unidadePadrao === value}
               >
                 {label}
               </button>
@@ -184,6 +215,21 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
           </div>
           <p className={styles.helper}>
             Auto-preenche o peso por caixa quando o produto for adicionado a uma lista em Cx.
+          </p>
+        </div>
+
+        <div className={styles.field}>
+          <label className={styles.toggleLabel}>
+            <input
+              type="checkbox"
+              className={styles.toggleInput}
+              checked={ativo}
+              onChange={(e) => setAtivo(e.target.checked)}
+            />
+            <span className={styles.toggleText}>Produto ativo</span>
+          </label>
+          <p className={styles.helper}>
+            Produtos inativos não aparecem na seleção de lista.
           </p>
         </div>
 

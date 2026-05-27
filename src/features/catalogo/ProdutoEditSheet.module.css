@@ -179,6 +179,33 @@
   margin: 0;
 }
 
+.labelOpcional {
+  font-weight: 400;
+  color: var(--text-disabled);
+}
+
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.toggleInput {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.toggleText {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
 .actions {
   display: flex;
   gap: 8px;
