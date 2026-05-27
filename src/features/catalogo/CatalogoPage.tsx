@@ -9,7 +9,7 @@ import type { Categoria, Produto } from '@t/index';
 import { ProdutoEditSheet } from './ProdutoEditSheet';
 import styles from './CatalogoPage.module.css';
 
-type Filtro = 'todos' | Categoria;
+type Filtro = 'todos' | 'inativos' | Categoria;
 
 const FILTROS: { label: string; value: Filtro }[] = [
   { label: 'Todos', value: 'todos' },
@@ -17,6 +17,8 @@ const FILTROS: { label: string; value: Filtro }[] = [
   { label: 'Verduras', value: 'verduras' },
   { label: 'Legumes', value: 'legumes' },
   { label: 'Raízes', value: 'raizes' },
+  { label: 'Outros', value: 'outros' },
+  { label: 'Inativos', value: 'inativos' },
 ];
 
 export function CatalogoPage() {
@@ -33,10 +35,13 @@ export function CatalogoPage() {
 
   const produtosFiltrados = produtos
     .filter((p) => {
-      const matchFiltro = filtro === 'todos' || p.categoria === filtro;
       const matchBusca =
         busca.trim() === '' || p.nome.toLowerCase().includes(busca.toLowerCase().trim());
-      return matchFiltro && matchBusca;
+      if (!matchBusca) return false;
+      if (filtro === 'inativos') return !p.ativo;
+      if (!p.ativo) return false;
+      if (filtro === 'todos') return true;
+      return p.categoria === filtro;
     })
     .sort((a, b) =>
       a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' }),
@@ -104,12 +109,15 @@ export function CatalogoPage() {
             <button
               key={p.id}
               type="button"
-              className={styles.card}
+              className={`${styles.card} ${!p.ativo ? styles.cardInativo : ''}`}
               onClick={() => setSheetState({ modo: 'editar', produto: p })}
               aria-label={`Editar ${p.nome}`}
             >
-              <span className={styles.cardEmoji} aria-hidden="true">
-                {p.emoji}
+              <span
+                className={`${styles.cardEmoji} ${!p.emoji ? styles.cardEmojiIniciais : ''}`}
+                aria-hidden="true"
+              >
+                {p.emoji ?? p.nome.slice(0, 2).toUpperCase()}
               </span>
               <div className={styles.cardMain}>
                 <span className={styles.cardNome}>{p.nome}</span>
