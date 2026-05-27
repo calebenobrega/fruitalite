@@ -2,7 +2,7 @@ export type Fase = 'planejamento' | 'comprando' | 'concluida';
 
 export type Unidade = 'caixas' | 'unidades' | 'kg';
 
-export type Categoria = 'frutas' | 'verduras' | 'legumes' | 'raizes';
+export type Categoria = 'frutas' | 'verduras' | 'legumes' | 'raizes' | 'outros';
 
 export type Usuario = {
   nome: string;
@@ -13,10 +13,12 @@ export type Usuario = {
 export type Produto = {
   id: string;
   nome: string;
-  emoji: string;
+  emoji?: string;
   categoria: Categoria;
+  unidadePadrao: Unidade;
   /** Peso padrão de 1 caixa em gramas. Auto-preenche o item da lista quando unidade='caixas'. */
   pesoPorCaixaGramas?: number;
+  ativo: boolean;
 };
 
 export type ItemLista = {
