@@ -9,6 +9,7 @@ type CatalogoState = {
   editar: (id: string, partial: Partial<Omit<Produto, 'id'>>) => void;
   remover: (id: string) => void;
   restaurarPadrao: () => void;
+  toggleAtivo: (id: string) => void;
 };
 
 function slugify(nome: string): string {
@@ -54,11 +55,19 @@ export const useCatalogoStore = create<CatalogoState>()(
       restaurarPadrao() {
         set({ produtos: catalogoPadrao });
       },
+
+      toggleAtivo(id) {
+        set((s) => ({
+          produtos: s.produtos.map((p) =>
+            p.id === id ? { ...p, ativo: !p.ativo } : p,
+          ),
+        }));
+      },
     }),
     {
       name: 'fruitalite:catalogo',
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
     },
   ),
 );
