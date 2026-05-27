@@ -18,6 +18,7 @@ const FILTROS: { label: string; value: Filtro }[] = [
   { label: 'Verduras', value: 'verduras' },
   { label: 'Legumes', value: 'legumes' },
   { label: 'Raízes', value: 'raizes' },
+  { label: 'Outros', value: 'outros' },
 ];
 
 type LocationState = {
@@ -44,6 +45,7 @@ export function SelecionarProdutos() {
 
   const idsExcluidosSet = new Set(idsExcluidos);
   const produtosFiltrados = catalogo.filter((p) => {
+    if (!p.ativo) return false;
     if (adicionandoEmId && idsExcluidosSet.has(p.id)) return false;
     const matchFiltro = filtro === 'todos' || p.categoria === filtro;
     const matchBusca =
@@ -66,7 +68,7 @@ export function SelecionarProdutos() {
       const item: ItemLista = {
         produtoId,
         quantidade: 1,
-        unidade: 'caixas',
+        unidade: produto?.unidadePadrao ?? 'caixas',
         valorUnitarioCentavos: null,
       };
       if (produto?.pesoPorCaixaGramas && produto.pesoPorCaixaGramas > 0) {
@@ -157,8 +159,11 @@ export function SelecionarProdutos() {
                 <span className={styles.checkIndicator} aria-hidden="true">
                   {selected && <Check size={11} strokeWidth={3} />}
                 </span>
-                <span className={styles.produtoEmoji} aria-hidden="true">
-                  {produto.emoji}
+                <span
+                  className={`${styles.produtoEmoji} ${!produto.emoji ? styles.produtoEmojiIniciais : ''}`}
+                  aria-hidden="true"
+                >
+                  {produto.emoji ?? produto.nome.slice(0, 2).toUpperCase()}
                 </span>
                 <span className={styles.produtoNome}>{produto.nome}</span>
               </button>

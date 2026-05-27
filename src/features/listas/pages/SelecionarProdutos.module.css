@@ -138,6 +138,17 @@
 .produtoEmoji {
   font-size: 36px;
   line-height: 1;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.produtoEmojiIniciais {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
 }
 
 .produtoNome {
