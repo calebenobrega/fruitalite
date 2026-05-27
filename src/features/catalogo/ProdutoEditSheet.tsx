@@ -146,7 +146,7 @@ export function ProdutoEditSheet({ produto, modo, onFechar }: Props) {
           </label>
           <div className={styles.emojiRow}>
             <span className={styles.emojiPreview} aria-hidden="true">
-              {emojiFinal ?? nome.slice(0, 2).toUpperCase() || '?'}
+              {emojiFinal ?? (nome.slice(0, 2).toUpperCase() || '?')}
             </span>
             <input
               id="produto-emoji"
