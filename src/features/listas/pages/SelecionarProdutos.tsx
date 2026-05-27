@@ -44,14 +44,16 @@ export function SelecionarProdutos() {
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
 
   const idsExcluidosSet = new Set(idsExcluidos);
-  const produtosFiltrados = catalogo.filter((p) => {
-    if (!p.ativo) return false;
-    if (adicionandoEmId && idsExcluidosSet.has(p.id)) return false;
-    const matchFiltro = filtro === 'todos' || p.categoria === filtro;
-    const matchBusca =
-      busca.trim() === '' || p.nome.toLowerCase().includes(busca.toLowerCase().trim());
-    return matchFiltro && matchBusca;
-  });
+  const produtosFiltrados = catalogo
+    .filter((p) => {
+      if (!p.ativo) return false;
+      if (adicionandoEmId && idsExcluidosSet.has(p.id)) return false;
+      const matchFiltro = filtro === 'todos' || p.categoria === filtro;
+      const matchBusca =
+        busca.trim() === '' || p.nome.toLowerCase().includes(busca.toLowerCase().trim());
+      return matchFiltro && matchBusca;
+    })
+    .sort((a, b) => (filtro === 'todos' ? a.nome.localeCompare(b.nome, 'pt-BR') : 0));
 
   function toggleSelecionado(id: string) {
     setSelecionados((prev) => {
