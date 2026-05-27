@@ -166,6 +166,7 @@
 /* ── Unit selector ───────────────────────────── */
 
 .unidadeGroup {
+  flex: 1;
   display: flex;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -174,14 +175,17 @@
 }
 
 .unidadeBtn {
+  flex: 1;
   height: 44px;
   padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: var(--font-data);
   font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
   background: transparent;
-  flex-shrink: 0;
   transition:
     background var(--duration-fast) var(--easing-default),
     color var(--duration-fast) var(--easing-default);
