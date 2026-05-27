@@ -287,8 +287,23 @@
 
 .itemBottom {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.valorLinha {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.valorLabel {
+  width: 56px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .precoKgRow {
@@ -365,16 +380,6 @@
   box-shadow: none;
 }
 
-.itemSubtotal {
-  font-family: var(--font-data);
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text);
-  white-space: nowrap;
-  flex-shrink: 0;
-  min-width: 72px;
-  text-align: right;
-}
 
 /* ── Adicionar produto card ──────────────────── */
 

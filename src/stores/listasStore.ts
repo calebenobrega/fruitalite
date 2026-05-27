@@ -31,7 +31,7 @@ export const useListasStore = create<ListasState>()(
         const lista: Lista = {
           id: crypto.randomUUID(),
           nome: nome ?? nomeLista(),
-          fase: 'planejamento',
+          fase: 'comprando',
           itens: itensValidos,
           criadaEm: new Date().toISOString(),
           finalizadaEm: null,

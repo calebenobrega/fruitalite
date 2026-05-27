@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Plus } from 'lucide-react';
 import { useCatalogoStore } from '@stores/catalogoStore';
@@ -35,11 +35,15 @@ function ItemRow({
 }) {
   const catalogo = useCatalogoStore((s) => s.produtos);
   const produto = catalogo.find((p) => p.id === item.produtoId);
-  const [valorStr, setValorStr] = useState(
-    () =>
-      item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
-        ? formatarMoedaCompact(item.valorUnitarioCentavos)
-        : '',
+  const [valorUnitStr, setValorUnitStr] = useState(() =>
+    item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
+      ? formatarMoedaCompact(item.valorUnitarioCentavos)
+      : '',
+  );
+  const [valorTotalStr, setValorTotalStr] = useState(() =>
+    item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
+      ? formatarMoedaCompact(item.valorUnitarioCentavos * item.quantidade)
+      : '',
   );
   const [qtdStr, setQtdStr] = useState(String(item.quantidade));
   const [pesoStr, setPesoStr] = useState(() =>
@@ -47,6 +51,18 @@ function ItemRow({
       ? String(item.pesoPorCaixaGramas / 1000).replace('.', ',')
       : '',
   );
+
+  // Sincroniza ambos os inputs quando o valor unitário ou a quantidade mudam no store
+  // (ex.: stepper de quantidade altera o total exibido).
+  useEffect(() => {
+    if (item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0) {
+      setValorUnitStr(formatarMoedaCompact(item.valorUnitarioCentavos));
+      setValorTotalStr(formatarMoedaCompact(item.valorUnitarioCentavos * item.quantidade));
+    } else {
+      setValorUnitStr('');
+      setValorTotalStr('');
+    }
+  }, [item.valorUnitarioCentavos, item.quantidade]);
 
   function handlePesoChange(e: ChangeEvent<HTMLInputElement>) {
     setPesoStr(e.target.value);
@@ -70,15 +86,32 @@ function ItemRow({
     onAtualizarPesoPorCaixa(item.produtoId, gramas);
   }
 
-  function handleValorChange(e: ChangeEvent<HTMLInputElement>) {
-    setValorStr(e.target.value);
+  function handleUnitChange(e: ChangeEvent<HTMLInputElement>) {
+    setValorUnitStr(e.target.value);
   }
 
-  function handleValorBlur() {
-    if (valorStr.trim() === '') return;
-    const centavos = parseMoeda(valorStr);
-    setValorStr(centavos > 0 ? formatarMoedaCompact(centavos) : '');
+  function handleUnitBlur() {
+    if (valorUnitStr.trim() === '') {
+      onDefinirValor(item.produtoId, 0);
+      return;
+    }
+    const centavos = parseMoeda(valorUnitStr);
     onDefinirValor(item.produtoId, centavos);
+  }
+
+  function handleTotalChange(e: ChangeEvent<HTMLInputElement>) {
+    setValorTotalStr(e.target.value);
+  }
+
+  function handleTotalBlur() {
+    if (valorTotalStr.trim() === '') {
+      onDefinirValor(item.produtoId, 0);
+      return;
+    }
+    const totalCentavos = parseMoeda(valorTotalStr);
+    if (item.quantidade <= 0) return;
+    const unitarioCentavos = Math.round(totalCentavos / item.quantidade);
+    onDefinirValor(item.produtoId, unitarioCentavos);
   }
 
   function increment() {
@@ -109,10 +142,8 @@ function ItemRow({
     onAtualizarQuantidade(item.produtoId, valid);
   }
 
-  const subtotal =
-    item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
-      ? item.valorUnitarioCentavos * item.quantidade
-      : null;
+  const sufixoUnidade =
+    item.unidade === 'caixas' ? 'cx' : item.unidade === 'kg' ? 'kg' : 'un';
 
   const isCaixas = item.unidade === 'caixas';
   const valorPorKgCentavos =
@@ -209,23 +240,46 @@ function ItemRow({
         </div>
       )}
       <div className={styles.itemBottom}>
-        <div className={styles.valorWrapper}>
-          <span className={styles.valorPrefix}>R$</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            value={valorStr}
-            onChange={handleValorChange}
-            onBlur={handleValorBlur}
-            onFocus={(e) => e.target.select()}
-            placeholder="0,00"
-            className={styles.valorInput}
-            aria-label={`Valor unitário de ${produto?.nome ?? item.produtoId}`}
-          />
+        <div className={styles.valorLinha}>
+          <label className={styles.valorLabel} htmlFor={`unit-${item.produtoId}`}>
+            R$/{sufixoUnidade}
+          </label>
+          <div className={styles.valorWrapper}>
+            <span className={styles.valorPrefix}>R$</span>
+            <input
+              id={`unit-${item.produtoId}`}
+              type="text"
+              inputMode="decimal"
+              value={valorUnitStr}
+              onChange={handleUnitChange}
+              onBlur={handleUnitBlur}
+              onFocus={(e) => e.target.select()}
+              placeholder="0,00"
+              className={styles.valorInput}
+              aria-label={`Valor por ${sufixoUnidade} de ${produto?.nome ?? item.produtoId}`}
+            />
+          </div>
         </div>
-        <span className={`${styles.itemSubtotal} tabular`}>
-          {subtotal !== null ? formatarMoeda(subtotal) : '—'}
-        </span>
+        <div className={styles.valorLinha}>
+          <label className={styles.valorLabel} htmlFor={`total-${item.produtoId}`}>
+            Total
+          </label>
+          <div className={styles.valorWrapper}>
+            <span className={styles.valorPrefix}>R$</span>
+            <input
+              id={`total-${item.produtoId}`}
+              type="text"
+              inputMode="decimal"
+              value={valorTotalStr}
+              onChange={handleTotalChange}
+              onBlur={handleTotalBlur}
+              onFocus={(e) => e.target.select()}
+              placeholder="0,00"
+              className={styles.valorInput}
+              aria-label={`Valor total de ${produto?.nome ?? item.produtoId}`}
+            />
+          </div>
+        </div>
       </div>
       {valorPorKgCentavos !== null && (
         <div className={styles.precoKgRow}>
