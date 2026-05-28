@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { STORAGE_KEYS } from '@config/storage-keys';
 import type { Usuario } from '@t/index';
 
 type UsuarioState = {
@@ -23,7 +24,7 @@ export const useUsuarioStore = create<UsuarioState>()(
       },
     }),
     {
-      name: 'fruitalite:usuario',
+      name: STORAGE_KEYS.usuario,
       storage: createJSONStorage(() => localStorage),
     },
   ),

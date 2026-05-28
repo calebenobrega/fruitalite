@@ -30,6 +30,7 @@
       "@features/*": ["src/features/*"],
       "@stores/*": ["src/stores/*"],
       "@domain/*": ["src/domain/*"],
+      "@config/*": ["src/config/*"],
       "@data/*": ["src/data/*"],
       "@t/*": ["src/types/*"],
       "@utils/*": ["src/utils/*"],

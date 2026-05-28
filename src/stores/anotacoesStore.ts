@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { STORAGE_KEYS } from '@config/storage-keys';
 import type { Anotacao, Lembrete } from '@t/index';
 
 type CriarDados = { titulo: string; conteudo: string; lembrete?: Lembrete | null };
@@ -84,7 +85,7 @@ export const useAnotacoesStore = create<AnotacoesState>()(
       },
     }),
     {
-      name: 'fruitalite:anotacoes',
+      name: STORAGE_KEYS.anotacoes,
       storage: createJSONStorage(() => localStorage),
     },
   ),

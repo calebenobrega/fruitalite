@@ -44,6 +44,7 @@ export default defineConfig({
       '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
       '@stores': fileURLToPath(new URL('./src/stores', import.meta.url)),
       '@domain': fileURLToPath(new URL('./src/domain', import.meta.url)),
+      '@config': fileURLToPath(new URL('./src/config', import.meta.url)),
       '@data': fileURLToPath(new URL('./src/data', import.meta.url)),
       '@t': fileURLToPath(new URL('./src/types', import.meta.url)),
       '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),

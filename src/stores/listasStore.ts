@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { STORAGE_KEYS } from '@config/storage-keys';
 import type { Lista, ItemLista, Unidade } from '@t/index';
 import { nomeLista } from '@utils/data';
 
@@ -163,7 +164,7 @@ export const useListasStore = create<ListasState>()(
       },
     }),
     {
-      name: 'fruitalite:listas',
+      name: STORAGE_KEYS.listas,
       storage: createJSONStorage(() => localStorage),
       version: 2,
       // v1 → v2: fase 'planejamento' deixou de existir; toda lista antiga vai pra 'comprando'.

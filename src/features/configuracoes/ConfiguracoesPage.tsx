@@ -4,6 +4,7 @@ import { ArrowLeft, Download, Upload, LogOut } from 'lucide-react';
 import { useUsuarioStore } from '@stores/usuarioStore';
 import { useToastStore } from '@stores/toastStore';
 import { exportarBackup, importarBackup, type ResultadoImport } from '@utils/backup';
+import { BACKUP_TIPO } from '@config/storage-keys';
 import styles from './ConfiguracoesPage.module.css';
 
 type Confirmacao =
@@ -41,7 +42,7 @@ export function ConfiguracoesPage() {
       // O `importarBackup` já aplica direto — fazemos uma pré-leitura aqui.
       const texto = await file.text();
       const parsed = JSON.parse(texto);
-      if (!parsed || parsed.tipo !== 'fruitalite-backup') {
+      if (!parsed || parsed.tipo !== BACKUP_TIPO) {
         show('Arquivo não é um backup do FruitaLite', 'error');
         return;
       }

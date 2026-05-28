@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { STORAGE_KEYS } from '@config/storage-keys';
 import type { Produto } from '@t/index';
 import { catalogoPadrao } from '@data/catalogo';
 
@@ -65,7 +66,7 @@ export const useCatalogoStore = create<CatalogoState>()(
       },
     }),
     {
-      name: 'fruitalite:catalogo',
+      name: STORAGE_KEYS.catalogo,
       storage: createJSONStorage(() => localStorage),
       version: 2,
     },

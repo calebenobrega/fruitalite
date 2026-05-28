@@ -2,10 +2,8 @@ import { useUsuarioStore } from '@stores/usuarioStore';
 import { useListasStore } from '@stores/listasStore';
 import { useAnotacoesStore } from '@stores/anotacoesStore';
 import { useCatalogoStore } from '@stores/catalogoStore';
+import { BACKUP_TIPO, BACKUP_VERSAO } from '@config/storage-keys';
 import type { Anotacao, Lista, Produto, Usuario } from '@t/index';
-
-const BACKUP_TIPO = 'fruitalite-backup';
-const BACKUP_VERSAO = 1;
 
 type BackupV1 = {
   tipo: typeof BACKUP_TIPO;
