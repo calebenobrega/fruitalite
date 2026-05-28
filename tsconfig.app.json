@@ -29,6 +29,7 @@
       "@components/*": ["src/components/*"],
       "@features/*": ["src/features/*"],
       "@stores/*": ["src/stores/*"],
+      "@domain/*": ["src/domain/*"],
       "@data/*": ["src/data/*"],
       "@t/*": ["src/types/*"],
       "@utils/*": ["src/utils/*"],
