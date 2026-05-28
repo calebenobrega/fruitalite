@@ -6,6 +6,7 @@ import { useListasStore } from '@stores/listasStore';
 import { useAnotacoesStore } from '@stores/anotacoesStore';
 import { useToastStore } from '@stores/toastStore';
 import { useCatalogoStore } from '@stores/catalogoStore';
+import { progressoLista, totalLista } from '@domain/lista';
 import { saudacao, tempoRelativo } from '@utils/data';
 import { formatarMoeda } from '@utils/moeda';
 import { Button } from '@components/Button';
@@ -16,21 +17,6 @@ import { ListaActionSheet } from '@components/ListaActionSheet/ListaActionSheet'
 import { useLongPress } from '@/hooks/useLongPress';
 import type { Lista } from '@t/index';
 import styles from './HomePage.module.css';
-
-function progressoLista(lista: Lista): number {
-  if (lista.itens.length === 0) return 0;
-  const comValor = lista.itens.filter(
-    (i) => i.valorUnitarioCentavos !== null && i.valorUnitarioCentavos > 0,
-  ).length;
-  return Math.round((comValor / lista.itens.length) * 100);
-}
-
-function totalLista(lista: Lista): number {
-  return lista.itens.reduce((acc, i) => {
-    if (!i.valorUnitarioCentavos) return acc;
-    return acc + i.valorUnitarioCentavos * i.quantidade;
-  }, 0);
-}
 
 function CardAtiva({
   lista,

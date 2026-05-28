@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, ShoppingBag } from 'lucide-react';
 import { useListasStore } from '@stores/listasStore';
 import { useToastStore } from '@stores/toastStore';
+import { totalLista } from '@domain/lista';
 import { formatarMoeda } from '@utils/moeda';
 import { tempoRelativo } from '@utils/data';
 import { Button } from '@components/Button';
@@ -12,13 +13,6 @@ import { ListaActionSheet } from '@components/ListaActionSheet/ListaActionSheet'
 import { useLongPress } from '@/hooks/useLongPress';
 import type { Lista } from '@t/index';
 import styles from './ListasPage.module.css';
-
-function totalLista(lista: Lista): number {
-  return lista.itens.reduce((acc, i) => {
-    if (!i.valorUnitarioCentavos) return acc;
-    return acc + i.valorUnitarioCentavos * i.quantidade;
-  }, 0);
-}
 
 function CardLista({
   lista,

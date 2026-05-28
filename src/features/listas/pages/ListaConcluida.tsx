@@ -4,6 +4,7 @@ import { ArrowLeft, Share2 } from 'lucide-react';
 import { useCatalogoStore } from '@stores/catalogoStore';
 import { useListasStore } from '@stores/listasStore';
 import { useToastStore } from '@stores/toastStore';
+import { totalLista } from '@domain/lista';
 import { Button } from '@components/Button';
 import { BadgeFase } from '@components/BadgeFase';
 import { formatarMoeda, formatarMoedaCompact } from '@utils/moeda';
@@ -37,13 +38,6 @@ function ItemRow({ item }: { item: ItemLista }) {
       </p>
     </li>
   );
-}
-
-function totalLista(lista: Lista): number {
-  return lista.itens.reduce((acc, i) => {
-    if (!i.valorUnitarioCentavos) return acc;
-    return acc + i.valorUnitarioCentavos * i.quantidade;
-  }, 0);
 }
 
 export function ListaConcluida({ lista }: { lista: Lista }) {

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trash2, Plus } from 'lucide-react';
 import { useCatalogoStore } from '@stores/catalogoStore';
@@ -7,6 +7,12 @@ import { useToastStore } from '@stores/toastStore';
 import { Button } from '@components/Button';
 import { BadgeFase } from '@components/BadgeFase';
 import { ProgressBar } from '@components/ProgressBar';
+import {
+  itensComValor,
+  itensPendentesValor,
+  progressoLista,
+  totalLista,
+} from '@domain/lista';
 import { formatarMoeda, formatarMoedaCompact, parseMoeda } from '@utils/moeda';
 import { formatarPeso } from '@utils/peso';
 import type { Lista, ItemLista, Unidade } from '@t/index';
@@ -35,16 +41,11 @@ function ItemRow({
 }) {
   const catalogo = useCatalogoStore((s) => s.produtos);
   const produto = catalogo.find((p) => p.id === item.produtoId);
-  const [valorUnitStr, setValorUnitStr] = useState(() =>
-    item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
-      ? formatarMoedaCompact(item.valorUnitarioCentavos)
-      : '',
-  );
-  const [valorTotalStr, setValorTotalStr] = useState(() =>
-    item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
-      ? formatarMoedaCompact(item.valorUnitarioCentavos * item.quantidade)
-      : '',
-  );
+
+  // Edição local dos campos de valor: null = sem edição pendente, display derivado do prop.
+  // Esse padrão evita setState dentro de useEffect quando quantidade/valor mudam no store.
+  const [valorUnitStr, setValorUnitStr] = useState<string | null>(null);
+  const [valorTotalStr, setValorTotalStr] = useState<string | null>(null);
   const [qtdStr, setQtdStr] = useState(String(item.quantidade));
   const [pesoStr, setPesoStr] = useState(() =>
     item.pesoPorCaixaGramas && item.pesoPorCaixaGramas > 0
@@ -52,17 +53,16 @@ function ItemRow({
       : '',
   );
 
-  // Sincroniza ambos os inputs quando o valor unitário ou a quantidade mudam no store
-  // (ex.: stepper de quantidade altera o total exibido).
-  useEffect(() => {
-    if (item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0) {
-      setValorUnitStr(formatarMoedaCompact(item.valorUnitarioCentavos));
-      setValorTotalStr(formatarMoedaCompact(item.valorUnitarioCentavos * item.quantidade));
-    } else {
-      setValorUnitStr('');
-      setValorTotalStr('');
-    }
-  }, [item.valorUnitarioCentavos, item.quantidade]);
+  const valorUnitDisplay =
+    valorUnitStr ??
+    (item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
+      ? formatarMoedaCompact(item.valorUnitarioCentavos)
+      : '');
+  const valorTotalDisplay =
+    valorTotalStr ??
+    (item.valorUnitarioCentavos && item.valorUnitarioCentavos > 0
+      ? formatarMoedaCompact(item.valorUnitarioCentavos * item.quantidade)
+      : '');
 
   function handlePesoChange(e: ChangeEvent<HTMLInputElement>) {
     setPesoStr(e.target.value);
@@ -91,12 +91,10 @@ function ItemRow({
   }
 
   function handleUnitBlur() {
-    if (valorUnitStr.trim() === '') {
-      onDefinirValor(item.produtoId, 0);
-      return;
-    }
-    const centavos = parseMoeda(valorUnitStr);
-    onDefinirValor(item.produtoId, centavos);
+    if (valorUnitStr === null) return;
+    const trimmed = valorUnitStr.trim();
+    onDefinirValor(item.produtoId, trimmed === '' ? 0 : parseMoeda(valorUnitStr));
+    setValorUnitStr(null);
   }
 
   function handleTotalChange(e: ChangeEvent<HTMLInputElement>) {
@@ -104,14 +102,15 @@ function ItemRow({
   }
 
   function handleTotalBlur() {
-    if (valorTotalStr.trim() === '') {
+    if (valorTotalStr === null) return;
+    const trimmed = valorTotalStr.trim();
+    if (trimmed === '') {
       onDefinirValor(item.produtoId, 0);
-      return;
+    } else if (item.quantidade > 0) {
+      const totalCentavos = parseMoeda(valorTotalStr);
+      onDefinirValor(item.produtoId, Math.round(totalCentavos / item.quantidade));
     }
-    const totalCentavos = parseMoeda(valorTotalStr);
-    if (item.quantidade <= 0) return;
-    const unitarioCentavos = Math.round(totalCentavos / item.quantidade);
-    onDefinirValor(item.produtoId, unitarioCentavos);
+    setValorTotalStr(null);
   }
 
   function increment() {
@@ -250,7 +249,7 @@ function ItemRow({
               id={`unit-${item.produtoId}`}
               type="text"
               inputMode="decimal"
-              value={valorUnitStr}
+              value={valorUnitDisplay}
               onChange={handleUnitChange}
               onBlur={handleUnitBlur}
               onFocus={(e) => e.target.select()}
@@ -270,7 +269,7 @@ function ItemRow({
               id={`total-${item.produtoId}`}
               type="text"
               inputMode="decimal"
-              value={valorTotalStr}
+              value={valorTotalDisplay}
               onChange={handleTotalChange}
               onBlur={handleTotalBlur}
               onFocus={(e) => e.target.select()}
@@ -308,16 +307,9 @@ export function ListaComprando({ lista }: { lista: Lista }) {
   const catalogo = useCatalogoStore((s) => s.produtos);
   const show = useToastStore((s) => s.show);
 
-  const comValor = lista.itens.filter(
-    (i) => i.valorUnitarioCentavos !== null && i.valorUnitarioCentavos > 0,
-  ).length;
-  const progresso =
-    lista.itens.length === 0 ? 0 : Math.round((comValor / lista.itens.length) * 100);
-
-  const totalCentavos = lista.itens.reduce((acc, i) => {
-    if (!i.valorUnitarioCentavos) return acc;
-    return acc + i.valorUnitarioCentavos * i.quantidade;
-  }, 0);
+  const comValor = itensComValor(lista);
+  const progresso = progressoLista(lista);
+  const totalCentavos = totalLista(lista);
 
   function handleRemover(produtoId: string) {
     const produto = catalogo.find((p) => p.id === produtoId);
@@ -342,7 +334,7 @@ export function ListaComprando({ lista }: { lista: Lista }) {
   function handleFinalizar() {
     const ok = finalizar(lista.id);
     if (!ok) {
-      const faltando = lista.itens.length - comValor;
+      const faltando = itensPendentesValor(lista);
       show(
         faltando === 1
           ? 'Falta o valor de 1 item'
