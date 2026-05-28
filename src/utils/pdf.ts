@@ -14,6 +14,17 @@ function nomeProduto(produtoId: string): string {
   return catalogo.find((p) => p.id === produtoId)?.nome ?? produtoId;
 }
 
+export function buildKgAnnotation(
+  unitCentavos: number,
+  pesoCxGramas: number,
+  quantidade: number,
+): string {
+  if (unitCentavos <= 0 || pesoCxGramas <= 0) return '';
+  const valorPorKgCentavos = Math.round((unitCentavos * 1000) / pesoCxGramas);
+  const totalGramas = pesoCxGramas * quantidade;
+  return `~ ${formatarMoeda(valorPorKgCentavos)}/kg · ${formatarPeso(totalGramas)} total`;
+}
+
 export async function gerarPDFLista(lista: Lista): Promise<void> {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
@@ -94,11 +105,8 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
 
     // Derivação R$/kg quando unidade=Cx + peso da caixa definido
     const pesoCx = item.pesoPorCaixaGramas ?? 0;
-    const temKgInfo =
-      item.unidade === 'caixas' && pesoCx > 0 && unitCentavos > 0;
-    const valorPorKgCentavos = temKgInfo
-      ? Math.round((unitCentavos * 1000) / pesoCx)
-      : 0;
+    const temKgInfo = item.unidade === 'caixas' && pesoCx > 0 && unitCentavos > 0;
+    const valorPorKgCentavos = temKgInfo ? Math.round((unitCentavos * 1000) / pesoCx) : 0;
     const totalGramas = temKgInfo ? pesoCx * item.quantidade : 0;
     const subRowHeight = temKgInfo ? 5 : 0;
 
@@ -157,7 +165,11 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
   doc.text('Total geral', colProdX, y + 6);
   doc.text(formatarMoeda(totalGeral), colSubtotalX, y + 6, { align: 'right' });
 
-  const nomeArquivo = lista.nome.replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '_') || 'lista';
+  const nomeArquivo =
+    lista.nome
+      .replace(/[^\w\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '_') || 'lista';
   const fileName = `${nomeArquivo}.pdf`;
 
   // Web Share API com arquivo PDF; fallback para download direto
