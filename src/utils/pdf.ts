@@ -106,7 +106,7 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
         ? buildKgAnnotation(unitCentavos, item.pesoPorCaixaGramas ?? 0, item.quantidade)
         : '';
 
-    // Checkbox (square, 4×4mm, slightly above baseline)
+    // Checkbox (square, 3.5×3.5mm, slightly above baseline)
     doc.setDrawColor(120);
     doc.setLineWidth(0.3);
     doc.rect(colCheckX, y - 3.5, checkSize, checkSize, 'S');

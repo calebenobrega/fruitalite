@@ -22,7 +22,8 @@ describe('buildKgAnnotation', () => {
   });
 
   it('calcula arredondamento correto de R$/kg', () => {
+    // 3000 ¢/cx ÷ 15kg = 200 ¢/kg = R$ 2,00/kg
     const result = buildKgAnnotation(3000, 15000, 1);
-    expect(result).toMatch(/~.*\/kg/);
+    expect(result).toMatch(/R\$\s*2,00\/kg/);
   });
 });
