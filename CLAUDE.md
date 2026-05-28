@@ -150,10 +150,10 @@ fruitalite/
 2. **Números com tabular-nums.** Qualquer valor exibido (R$, quantidade, peso) usa `font-variant-numeric: tabular-nums` (Inter já suporta).
 3. **Moeda em centavos.** Armazenar como `number` inteiro representando centavos. Nunca usar float. Converter pra exibição apenas no momento da renderização com `Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' })`.
 4. **Peso em gramas.** Armazenar como inteiro. Converter pra kg só na UI.
-5. **Validar transição de fase.** RN1-RN4 (ver `CONTEXTO.md`):
-   - `planejamento → comprando`: precisa ter ≥1 produto com quantidade
-   - `comprando → concluida`: todos produtos precisam ter valor unitário
+5. **Validar transição de fase.** Modelo simplificado em 2 fases (planejamento foi removido — toda lista nova já nasce em `comprando`):
+   - `comprando → concluida`: todos produtos precisam ter valor unitário (helper `podeFinalizar` em `@domain/lista`)
    - `concluida` é read-only (não edita, só visualiza ou exclui)
+   - `CONTEXTO.md` ainda menciona "planejamento" — vai ser atualizado quando reescrito.
 6. **Touch targets ≥ 44px.** Botões, ícones clicáveis, links — tudo respeita o mínimo.
 7. **Mobile-only.** Layout pensado para 375px–430px de viewport. Não criar breakpoints `@media (min-width: ...)`. O shell em `globals.css` trava a app num container `max-width: 480px` centralizado pra quando o usuário acessar do desktop, mas o design assume sempre celular.
 8. **Saudação dinâmica.** Sempre que mostrar saudação, usar função utilitária que retorna "Bom dia / Boa tarde / Boa noite" baseado em `new Date().getHours()`.
@@ -166,9 +166,9 @@ fruitalite/
 ## Modelo de dados (referência rápida)
 
 ```ts
-type Fase = 'planejamento' | 'comprando' | 'concluida';
+type Fase = 'comprando' | 'concluida';
 type Unidade = 'caixas' | 'unidades' | 'kg';
-type Categoria = 'frutas' | 'verduras' | 'legumes' | 'raizes';
+type Categoria = 'frutas' | 'verduras' | 'legumes' | 'raizes' | 'outros';
 
 type Usuario = {
   nome: string;
@@ -179,9 +179,11 @@ type Usuario = {
 type Produto = {
   id: string;
   nome: string;
-  emoji: string;
+  emoji?: string;                 // opcional — fallback: iniciais do nome
   categoria: Categoria;
-  pesoPorCaixaGramas?: number;
+  unidadePadrao: Unidade;         // pré-preenche unidade ao adicionar à lista
+  pesoPorCaixaGramas?: number;    // relevante quando unidadePadrao = 'caixas'
+  ativo: boolean;                 // false oculta da seleção de lista
 };
 
 type ItemLista = {

@@ -60,7 +60,7 @@ export function ListasPage() {
 
   const [listaParaExcluir, setListaParaExcluir] = useState<Lista | null>(null);
 
-  const ativas = listas.filter((l) => l.fase === 'planejamento' || l.fase === 'comprando');
+  const ativas = listas.filter((l) => l.fase === 'comprando');
   const concluidas = listas.filter((l) => l.fase === 'concluida');
 
   function handleConfirmarExclusao() {

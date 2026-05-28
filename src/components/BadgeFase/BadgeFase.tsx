@@ -7,7 +7,6 @@ type BadgeFaseProps = {
 };
 
 const config: Record<Fase, { label: string; emoji: string; variant: ChipVariant }> = {
-  planejamento: { label: 'Planejamento', emoji: '📋', variant: 'primary' },
   comprando: { label: 'Comprando', emoji: '🛒', variant: 'warning' },
   concluida: { label: 'Concluída', emoji: '✓', variant: 'success' },
 };

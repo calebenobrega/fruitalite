@@ -1,4 +1,4 @@
-export type Fase = 'planejamento' | 'comprando' | 'concluida';
+export type Fase = 'comprando' | 'concluida';
 
 export type Unidade = 'caixas' | 'unidades' | 'kg';
 

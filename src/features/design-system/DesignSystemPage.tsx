@@ -209,12 +209,10 @@ export function DesignSystemPage() {
       {/* ── BADGE FASE ─────────────────────────────────────── */}
       <Section title="BadgeFase">
         <Row>
-          <BadgeFase fase="planejamento" />
           <BadgeFase fase="comprando" />
           <BadgeFase fase="concluida" />
         </Row>
         <Row>
-          <BadgeFase fase="planejamento" size="sm" />
           <BadgeFase fase="comprando" size="sm" />
           <BadgeFase fase="concluida" size="sm" />
         </Row>

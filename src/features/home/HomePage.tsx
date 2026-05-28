@@ -112,7 +112,7 @@ export function HomePage() {
     setListaParaExcluir(null);
   }
 
-  const listaAtiva = listas.find((l) => l.fase === 'planejamento' || l.fase === 'comprando') ?? null;
+  const listaAtiva = listas.find((l) => l.fase === 'comprando') ?? null;
   const concluidas = listas.filter((l) => l.fase === 'concluida');
   const ultimas3 = concluidas.slice(0, 3);
 

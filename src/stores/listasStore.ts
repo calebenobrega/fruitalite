@@ -7,7 +7,6 @@ type ListasState = {
   listas: Lista[];
   criarLista: (itens: ItemLista[], nome?: string) => Lista;
   excluirLista: (id: string) => void;
-  iniciarCompra: (id: string) => boolean;
   definirValor: (listaId: string, produtoId: string, centavos: number) => void;
   atualizarQuantidade: (listaId: string, produtoId: string, quantidade: number) => void;
   atualizarUnidade: (listaId: string, produtoId: string, unidade: Unidade) => void;
@@ -42,17 +41,6 @@ export const useListasStore = create<ListasState>()(
 
       excluirLista(id) {
         set((s) => ({ listas: s.listas.filter((l) => l.id !== id) }));
-      },
-
-      iniciarCompra(id) {
-        const lista = get().listas.find((l) => l.id === id);
-        // RN2: precisa ter ≥1 item com quantidade
-        if (!lista || lista.itens.length === 0) return false;
-        if (lista.fase !== 'planejamento') return false;
-        set((s) => ({
-          listas: s.listas.map((l) => (l.id === id ? { ...l, fase: 'comprando' } : l)),
-        }));
-        return true;
       },
 
       definirValor(listaId, produtoId, centavos) {
@@ -177,6 +165,23 @@ export const useListasStore = create<ListasState>()(
     {
       name: 'fruitalite:listas',
       storage: createJSONStorage(() => localStorage),
+      version: 2,
+      // v1 → v2: fase 'planejamento' deixou de existir; toda lista antiga vai pra 'comprando'.
+      migrate: (persisted, version) => {
+        if (!persisted || typeof persisted !== 'object') {
+          return { listas: [] };
+        }
+        const state = persisted as { listas?: Lista[] };
+        if (version < 2) {
+          return {
+            ...state,
+            listas: (state.listas ?? []).map((l) =>
+              (l.fase as string) === 'planejamento' ? { ...l, fase: 'comprando' } : l,
+            ),
+          };
+        }
+        return state;
+      },
     },
   ),
 );
