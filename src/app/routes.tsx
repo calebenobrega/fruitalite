@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useUsuarioStore } from '@stores/usuarioStore';
 import { OnboardingPage } from '@features/onboarding/OnboardingPage';
@@ -9,7 +9,16 @@ import { AnotacoesPage } from '@features/anotacoes/AnotacoesPage';
 import { ListasPage } from '@features/listas/pages/ListasPage';
 import { CatalogoPage } from '@features/catalogo/CatalogoPage';
 import { ConfiguracoesPage } from '@features/configuracoes/ConfiguracoesPage';
-import { DesignSystemPage } from '@features/design-system/DesignSystemPage';
+
+// Design system page é só pra desenvolvimento — lazy + condicional pra
+// que o chunk nem vá pro bundle de produção.
+const DesignSystemPage = import.meta.env.DEV
+  ? lazy(() =>
+      import('@features/design-system/DesignSystemPage').then((m) => ({
+        default: m.DesignSystemPage,
+      })),
+    )
+  : null;
 
 function RequireOnboarding({ children }: { children: ReactNode }) {
   const isOnboarded = useUsuarioStore((s) => s.isOnboarded);
@@ -94,8 +103,17 @@ export function AppRoutes() {
         }
       />
 
-      {/* Design system — apenas durante desenvolvimento */}
-      <Route path="/design-system" element={<DesignSystemPage />} />
+      {/* Design system — apenas em build de desenvolvimento (tree-shaken em prod) */}
+      {DesignSystemPage && (
+        <Route
+          path="/design-system"
+          element={
+            <Suspense fallback={null}>
+              <DesignSystemPage />
+            </Suspense>
+          }
+        />
+      )}
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
