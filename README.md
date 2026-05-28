@@ -1,99 +1,83 @@
 # FruitaLite
 
-Versão lite do projeto Fruita: app **mobile** para gestão de listas de compras hortifrúti. Usuário único, client-side puro com localStorage, fluxo em 3 fases (planejamento → comprando → concluída).
+PWA mobile-only para gestão de listas de compras hortifrúti. Usuário único, client-side puro com localStorage, fluxo em 3 fases (planejamento → comprando → concluída).
+
+> Instalável via Chrome (Android) e Safari (iOS 15+). Sem APK, sem app store.
 
 ## Como rodar
 
 ```bash
 npm install
-npm run dev
+npm run dev          # http://localhost:5173 (SW não ativa em dev)
 ```
 
-Abre em http://localhost:5173. Use as ferramentas de simulação mobile do navegador (iPhone, Pixel) ou redimensione a janela para ≤480px de largura — o app trava em viewport mobile e não tem layout desktop.
+O app é desenhado para viewport de 375–430px. Use as ferramentas de simulação mobile do navegador ou redimensione a janela para ≤480px — em telas maiores ele aparece travado num container centralizado.
 
-## Scripts disponíveis
+Para testar o service worker e o comportamento PWA real:
+
+```bash
+npm run build
+npx vite preview --port 4173    # http://localhost:4173 (SW ativo)
+```
+
+## Scripts
 
 | Comando | Descrição |
 |---|---|
-| `npm run dev` | servidor de desenvolvimento Vite |
-| `npm run build` | compilação TS + bundle de produção |
-| `npm run preview` | servir o build local |
-| `npm run lint` | ESLint sobre `src/` |
+| `npm run dev` | Servidor de desenvolvimento Vite |
+| `npm run build` | TS check + bundle de produção (gera `dist/` com `sw.js`) |
+| `npm run preview` | Servir o build local (SW ativo) |
+| `npm run lint` | ESLint sobre `src/` (max 0 warnings) |
 | `npm run lint:fix` | ESLint com `--fix` |
 | `npm run format` | Prettier formatando `src/` |
 | `npm run format:check` | Prettier conferindo sem alterar |
 | `npm run type-check` | `tsc --noEmit` |
 
-## Documentação interna
+## Instalar como PWA
 
-- [`CLAUDE.md`](./CLAUDE.md) — contexto técnico, stack, convenções, regras invioláveis, modelo de dados
-- [`CONTEXTO.md`](./CONTEXTO.md) — visão geral, fluxos, escopo, regras de negócio
-- [`DESIGN.md`](./DESIGN.md) — design system completo (tokens CSS, tipografia, componentes)
-- [`public/brand/README.md`](./public/brand/README.md) — variantes de logo e quando usar cada uma
+- **Android (Chrome):** menu ⋮ → "Adicionar à tela inicial" / "Instalar app"
+- **iOS 15+ (Safari):** botão compartilhar → "Adicionar à Tela de Início"
 
-## Build Android (APK)
+## Deploy
 
-O app usa [Capacitor](https://capacitorjs.com/) para gerar um `.apk` Android nativo a partir do build Vite.
-
-**Pré-requisitos:** Android Studio instalado com SDK Android.
-
-### Fluxo de desenvolvimento
-
-```bash
-# 1. Compilar o web app
-npm run build
-
-# 2. Sincronizar com o projeto Android
-npx cap sync android
-
-# 3. Abrir no Android Studio
-npx cap open android
-```
-
-No Android Studio: clique **Run ▶** com um emulador ou dispositivo conectado para instalar diretamente.
-
-### Gerar APK debug
-
-No Android Studio:
-1. **Build → Build Bundle(s) / APK(s) → Build APK(s)**
-2. O `.apk` fica em `android/app/build/outputs/apk/debug/app-debug.apk`
-
-### Gerar APK release (assinado)
-
-1. **Build → Generate Signed Bundle / APK → APK**
-2. Criar ou usar keystore existente
-3. O `.apk` fica em `android/app/build/outputs/apk/release/app-release.apk`
-
-### Atualizar ícones e splash
-
-Os SVGs fonte ficam em `assets/`. Para regerar os recursos Android:
-
-```bash
-npx @capacitor/assets generate --android \
-  --iconBackgroundColor '#f5f0e8' \
-  --iconBackgroundColorDark '#1a3a2a' \
-  --splashBackgroundColor '#1a3a2a' \
-  --splashBackgroundColorDark '#1a3a2a' \
-  --logoSplashScale 0.35
-```
+Deploy automático na Vercel a cada `git push master`. Configuração em [`vercel.json`](./vercel.json) (SPA rewrites + headers de cache para o service worker).
 
 ## Stack
 
-React 19 · Vite · TypeScript strict · React Router 6 · Zustand · CSS Modules + variáveis CSS · Lucide React · Manrope + Inter · date-fns · Capacitor. Sem backend.
+React 19 · Vite 8 · TypeScript 6 strict · React Router 6 · Zustand 5 (persist) · CSS Modules + variáveis CSS · Lucide React · Manrope + Inter · date-fns 4 · jsPDF · vite-plugin-pwa + Workbox.
 
-## Estrutura de pastas
+Sem backend. Tudo client-side. Persistência em localStorage via middleware persist do Zustand.
 
-Detalhada em [`CLAUDE.md`](./CLAUDE.md#estrutura-de-pastas). Resumo:
+## Estrutura de pastas (resumo)
 
 ```
 src/
 ├── app/         # entry + router + layout
 ├── components/  # design system
-├── features/    # onboarding, home, listas, anotacoes
+├── features/    # onboarding, home, listas, anotacoes, catalogo, configuracoes, design-system
 ├── stores/      # estado global (Zustand)
-├── data/        # catálogo de produtos
+├── data/        # catálogo seed
 ├── types/       # tipos compartilhados
-├── utils/       # moeda, peso, data, storage
+├── utils/       # moeda, peso, data, backup, pdf
 └── styles/      # tokens.css, globals.css
-public/brand/    # logos SVG do Fruita
+public/brand/    # logos SVG + ícones PWA (PNGs gerados via @vite-pwa/assets-generator)
 ```
+
+Detalhada em [`CLAUDE.md`](./CLAUDE.md#estrutura-de-pastas).
+
+## Documentação interna
+
+- [`CLAUDE.md`](./CLAUDE.md) — stack, convenções, regras invioláveis, modelo de dados
+- [`CONTEXTO.md`](./CONTEXTO.md) — visão geral, fluxos, escopo, regras de negócio
+- [`DESIGN.md`](./DESIGN.md) — design system (tokens CSS, tipografia, componentes)
+- [`public/brand/README.md`](./public/brand/README.md) — variantes de logo
+
+## Histórico
+
+| Data | Marco | Tag |
+|---|---|---|
+| 2026-05-15 | v1.0 — APK Capacitor Android | `lite-v1.0.0` |
+| 2026-05-25 | Pré-migração PWA (ponto de retorno) | `pre-pwa-migration` |
+| 2026-05-25 | Migração APK → PWA, deploy Vercel | _master atual_ |
+
+Para inspecionar o estado pré-migração: `git checkout pre-pwa-migration`.
