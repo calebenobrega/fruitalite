@@ -13,11 +13,6 @@ export function formatarData(iso: string): string {
   return format(new Date(iso), 'dd/MM/yyyy', { locale: ptBR });
 }
 
-/** Ex: "13 de mai." */
-export function formatarDataCurta(iso: string): string {
-  return format(new Date(iso), "d 'de' MMM.", { locale: ptBR });
-}
-
 /** Ex: "há 2 dias" */
 export function tempoRelativo(iso: string): string {
   return formatDistanceToNow(new Date(iso), { locale: ptBR, addSuffix: true });

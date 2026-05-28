@@ -5,13 +5,3 @@ export function formatarPeso(gramas: number): string {
   if (gramas < 1000) return `${gramas} g`;
   return `${fmtKg.format(gramas / 1000)} kg`;
 }
-
-/** Gramas → kg (float) */
-export function gramasParaKg(gramas: number): number {
-  return gramas / 1000;
-}
-
-/** Kg (float) → gramas inteiros */
-export function kgParaGramas(kg: number): number {
-  return Math.round(kg * 1000);
-}

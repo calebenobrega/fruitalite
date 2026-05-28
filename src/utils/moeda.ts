@@ -21,13 +21,3 @@ export function parseMoeda(input: string): number {
   if (isNaN(valor)) return 0;
   return Math.round(valor * 100);
 }
-
-/** Centavos → reais (float, só pra cálculos) */
-export function centavosParaReais(centavos: number): number {
-  return centavos / 100;
-}
-
-/** Reais (float) → centavos inteiros */
-export function reaisParaCentavos(reais: number): number {
-  return Math.round(reais * 100);
-}
