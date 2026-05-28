@@ -157,7 +157,7 @@ fruitalite/
 6. **Touch targets ≥ 44px.** Botões, ícones clicáveis, links — tudo respeita o mínimo.
 7. **Mobile-only.** Layout pensado para 375px–430px de viewport. Não criar breakpoints `@media (min-width: ...)`. O shell em `globals.css` trava a app num container `max-width: 480px` centralizado pra quando o usuário acessar do desktop, mas o design assume sempre celular.
 8. **Saudação dinâmica.** Sempre que mostrar saudação, usar função utilitária que retorna "Bom dia / Boa tarde / Boa noite" baseado em `new Date().getHours()`.
-9. **localStorage com wrapper tipado.** Nunca acessar `localStorage` direto em componente. Usar funções em `src/utils/storage.ts`.
+9. **localStorage via Zustand persist, sempre.** Nunca acessar `localStorage` direto em componente. Toda persistência client-side passa pelo middleware `persist` dos stores em `src/stores/`. Se precisar de persistência fora de um store (raro), discutir antes de criar wrapper paralelo.
 10. **Não inventar funcionalidades fora do escopo.** Antes de adicionar algo, conferir `CONTEXTO.md` seção "Fora do escopo". Se em dúvida, perguntar.
 11. **Não recriar Capacitor.** Nunca criar `android/`, `ios/`, `capacitor.config.*` ou instalar `@capacitor/*`. O app é PWA — qualquer feature mobile vai por API web padrão.
 12. **Antes de instalar dependência nova, justificar.** Este projeto tem escopo enxuto. Dependências novas devem ser discutidas antes de `npm install`.
