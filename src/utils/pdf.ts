@@ -28,25 +28,24 @@ export function buildKgAnnotation(
 export async function gerarPDFLista(lista: Lista): Promise<void> {
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-  const margin = 16;
+  const margin = 12;
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   const contentRight = pageWidth - margin;
 
   // Column positions (mm)
   const colCheckX = margin;
-  const checkSize = 4;
-  const colProdX = margin + 7;
-  const colQtdX = margin + 77;
-  const colUnitX = margin + 98;
-  const colSubtotalX = margin + 124;
-  const colObsX = margin + 128;
+  const checkSize = 3.5;
+  const colProdX = margin + 5;
+  const colQtdX = 110;
+  const colUnitX = 134;
+  const colSubtotalX = 195;
 
-  const rowHeight = 10;
-  const bottomLimit = pageHeight - margin - 20; // reserve space for total
+  const rowHeight = 7;
+  const bottomLimit = pageHeight - margin - 20;
 
   function drawTableHeader(yPos: number): number {
-    doc.setFontSize(9);
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(100);
 
@@ -54,32 +53,31 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
     doc.text('Qtd.', colQtdX, yPos, { align: 'center' });
     doc.text('Unit.', colUnitX, yPos, { align: 'center' });
     doc.text('Subtotal', colSubtotalX, yPos, { align: 'right' });
-    doc.text('Observação', colObsX, yPos);
 
     doc.setDrawColor(200);
     doc.line(margin, yPos + 3, contentRight, yPos + 3);
-    return yPos + 10;
+    return yPos + 8;
   }
 
   // ── Document header
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(30);
-  doc.text(lista.nome, margin, 24);
+  doc.text(lista.nome, margin, 18);
 
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100);
   const dataTexto = lista.finalizadaEm
     ? `Finalizada em ${formatarData(lista.finalizadaEm)}`
     : `Criada em ${formatarData(lista.criadaEm)}`;
-  doc.text(dataTexto, margin, 32);
+  doc.text(dataTexto, margin, 25);
 
   doc.setDrawColor(210);
-  doc.line(margin, 37, contentRight, 37);
+  doc.line(margin, 29, contentRight, 29);
 
   // ── Table header
-  let y = drawTableHeader(46);
+  let y = drawTableHeader(33);
 
   // ── Rows (alfabético por nome do produto)
   const itensOrdenados = [...lista.itens].sort((a, b) =>
@@ -88,7 +86,7 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
     }),
   );
 
-  doc.setFontSize(10);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(30);
 
@@ -103,12 +101,10 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
     totalGeral += subtotal;
     const subtotalLabel = subtotal > 0 ? formatarMoeda(subtotal) : '—';
 
-    // Derivação R$/kg quando unidade=Cx + peso da caixa definido
-    const pesoCx = item.pesoPorCaixaGramas ?? 0;
-    const temKgInfo = item.unidade === 'caixas' && pesoCx > 0 && unitCentavos > 0;
-    const valorPorKgCentavos = temKgInfo ? Math.round((unitCentavos * 1000) / pesoCx) : 0;
-    const totalGramas = temKgInfo ? pesoCx * item.quantidade : 0;
-    const subRowHeight = temKgInfo ? 5 : 0;
+    const kgAnnotation =
+      item.unidade === 'caixas'
+        ? buildKgAnnotation(unitCentavos, item.pesoPorCaixaGramas ?? 0, item.quantidade)
+        : '';
 
     // Checkbox (square, 4×4mm, slightly above baseline)
     doc.setDrawColor(120);
@@ -124,32 +120,29 @@ export async function gerarPDFLista(lista: Lista): Promise<void> {
         : nome;
 
     doc.text(nomeFinal, colProdX, y);
+    if (kgAnnotation) {
+      const annotX = colProdX + doc.getTextWidth(nomeFinal) + 3;
+      doc.setFontSize(7);
+      const annotFits = annotX + doc.getTextWidth(kgAnnotation) < colQtdX - 4;
+      if (annotFits) {
+        doc.setTextColor(140);
+        doc.text(kgAnnotation, annotX, y);
+      }
+      doc.setFontSize(9);
+      doc.setTextColor(30);
+    }
     doc.text(qtdLabel, colQtdX, y, { align: 'center' });
     doc.text(unitLabel, colUnitX, y, { align: 'center' });
     doc.text(subtotalLabel, colSubtotalX, y, { align: 'right' });
-    // Observação: célula vazia para escrita manual
-
-    // Sublinha com R$/kg derivado + peso total (quando aplicável)
-    if (temKgInfo) {
-      doc.setFontSize(8);
-      doc.setTextColor(120);
-      doc.text(
-        `~ ${formatarMoeda(valorPorKgCentavos)}/kg  •  ${formatarPeso(totalGramas)} no total`,
-        colProdX,
-        y + 5,
-      );
-      doc.setFontSize(10);
-      doc.setTextColor(30);
-    }
 
     doc.setDrawColor(235);
-    doc.line(margin, y + 3 + subRowHeight, contentRight, y + 3 + subRowHeight);
-    y += rowHeight + subRowHeight;
+    doc.line(margin, y + 3, contentRight, y + 3);
+    y += rowHeight;
 
     if (y > bottomLimit) {
       doc.addPage();
       y = drawTableHeader(24);
-      doc.setFontSize(10);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(30);
     }
