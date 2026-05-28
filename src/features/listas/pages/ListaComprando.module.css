@@ -46,6 +46,26 @@
   white-space: nowrap;
 }
 
+.renomearBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  background: transparent;
+  flex-shrink: 0;
+  transition:
+    color var(--duration-fast) var(--easing-default),
+    background var(--duration-fast) var(--easing-default);
+}
+
+.renomearBtn:hover {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
 /* ── Progress ────────────────────────────────── */
 
 .progressSection {
@@ -346,7 +366,8 @@
   height: 44px;
   background: var(--surface);
   min-width: 0;
-  transition: border-color var(--duration-fast) var(--easing-default),
+  transition:
+    border-color var(--duration-fast) var(--easing-default),
     box-shadow var(--duration-fast) var(--easing-default);
 }
 
@@ -383,7 +404,6 @@
 .valorInput:focus-visible {
   box-shadow: none;
 }
-
 
 /* ── Adicionar produto card ──────────────────── */
 

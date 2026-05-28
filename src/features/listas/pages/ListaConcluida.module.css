@@ -45,6 +45,26 @@
   white-space: nowrap;
 }
 
+.renomearBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  background: transparent;
+  flex-shrink: 0;
+  transition:
+    color var(--duration-fast) var(--easing-default),
+    background var(--duration-fast) var(--easing-default);
+}
+
+.renomearBtn:hover {
+  color: var(--text);
+  background: var(--surface-sunken);
+}
+
 /* ── Summary card ────────────────────────────── */
 
 .resumoCard {
@@ -212,4 +232,3 @@
   color: var(--text-muted);
   margin: 0 0 8px;
 }
-

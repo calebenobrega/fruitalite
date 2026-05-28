@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2 } from 'lucide-react';
+import { ArrowLeft, Share2, Pencil, RotateCcw } from 'lucide-react';
 import { useCatalogoStore } from '@stores/catalogoStore';
 import { useListasStore } from '@stores/listasStore';
 import { useToastStore } from '@stores/toastStore';
@@ -11,6 +11,7 @@ import { formatarMoeda, formatarMoedaCompact } from '@utils/moeda';
 import { formatarData } from '@utils/data';
 import { gerarPDFLista } from '@utils/pdf';
 import type { Lista, ItemLista, Unidade } from '@t/index';
+import { RenomearListaSheet } from '../RenomearListaSheet';
 import styles from './ListaConcluida.module.css';
 
 function labelUnidade(u: Unidade): string {
@@ -33,8 +34,7 @@ function ItemRow({ item }: { item: ItemLista }) {
       </div>
       <p className={styles.itemDetalhe}>
         {item.quantidade} {labelUnidade(item.unidade)} ×{' '}
-        {formatarMoedaCompact(item.valorUnitarioCentavos ?? 0)}/
-        {labelUnidade(item.unidade)}
+        {formatarMoedaCompact(item.valorUnitarioCentavos ?? 0)}/{labelUnidade(item.unidade)}
       </p>
     </li>
   );
@@ -43,14 +43,21 @@ function ItemRow({ item }: { item: ItemLista }) {
 export function ListaConcluida({ lista }: { lista: Lista }) {
   const navigate = useNavigate();
   const excluirLista = useListasStore((s) => s.excluirLista);
+  const reabrir = useListasStore((s) => s.reabrir);
   const show = useToastStore((s) => s.show);
   const [confirmando, setConfirmando] = useState(false);
+  const [renomeando, setRenomeando] = useState(false);
   const total = totalLista(lista);
 
   function handleExcluir() {
     excluirLista(lista.id);
     show('Lista excluída', 'info');
     navigate('/', { replace: true });
+  }
+
+  function handleReabrir() {
+    const ok = reabrir(lista.id);
+    if (ok) show('Lista reaberta', 'success');
   }
 
   return (
@@ -65,6 +72,14 @@ export function ListaConcluida({ lista }: { lista: Lista }) {
           <ArrowLeft size={20} strokeWidth={2} />
         </button>
         <h1 className={styles.pageTitle}>{lista.nome}</h1>
+        <button
+          type="button"
+          className={styles.renomearBtn}
+          onClick={() => setRenomeando(true)}
+          aria-label="Renomear lista"
+        >
+          <Pencil size={16} strokeWidth={2} />
+        </button>
         <BadgeFase fase={lista.fase} size="sm" />
       </header>
 
@@ -99,7 +114,21 @@ export function ListaConcluida({ lista }: { lista: Lista }) {
         >
           Compartilhar PDF
         </Button>
-        <Button variant="secondary" size="lg" fullWidth onClick={() => navigate('/', { replace: true })}>
+        <Button
+          variant="secondary"
+          size="lg"
+          fullWidth
+          iconLeft={<RotateCcw size={18} />}
+          onClick={handleReabrir}
+        >
+          Reabrir para editar
+        </Button>
+        <Button
+          variant="secondary"
+          size="lg"
+          fullWidth
+          onClick={() => navigate('/', { replace: true })}
+        >
           Voltar para início
         </Button>
         <button type="button" className={styles.excluirBtn} onClick={() => setConfirmando(true)}>
@@ -108,7 +137,12 @@ export function ListaConcluida({ lista }: { lista: Lista }) {
       </div>
 
       {confirmando && (
-        <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Confirmar exclusão">
+        <div
+          className={styles.overlay}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Confirmar exclusão"
+        >
           <div className={styles.dialog}>
             <p className={styles.dialogTitle}>Excluir lista?</p>
             <p className={styles.dialogDesc}>Esta ação não pode ser desfeita.</p>
@@ -121,6 +155,8 @@ export function ListaConcluida({ lista }: { lista: Lista }) {
           </div>
         </div>
       )}
+
+      {renomeando && <RenomearListaSheet lista={lista} onFechar={() => setRenomeando(false)} />}
     </div>
   );
 }

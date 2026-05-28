@@ -1,18 +1,14 @@
 import { useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Trash2, Plus } from 'lucide-react';
+import { ArrowLeft, Trash2, Plus, Pencil } from 'lucide-react';
 import { useCatalogoStore } from '@stores/catalogoStore';
 import { useListasStore } from '@stores/listasStore';
 import { useToastStore } from '@stores/toastStore';
 import { Button } from '@components/Button';
 import { BadgeFase } from '@components/BadgeFase';
 import { ProgressBar } from '@components/ProgressBar';
-import {
-  itensComValor,
-  itensPendentesValor,
-  progressoLista,
-  totalLista,
-} from '@domain/lista';
+import { RenomearListaSheet } from '../RenomearListaSheet';
+import { itensComValor, itensPendentesValor, progressoLista, totalLista } from '@domain/lista';
 import { formatarMoeda, formatarMoedaCompact, parseMoeda } from '@utils/moeda';
 import { formatarPeso } from '@utils/peso';
 import type { Lista, ItemLista, Unidade } from '@t/index';
@@ -141,8 +137,7 @@ function ItemRow({
     onAtualizarQuantidade(item.produtoId, valid);
   }
 
-  const sufixoUnidade =
-    item.unidade === 'caixas' ? 'cx' : item.unidade === 'kg' ? 'kg' : 'un';
+  const sufixoUnidade = item.unidade === 'caixas' ? 'cx' : item.unidade === 'kg' ? 'kg' : 'un';
 
   const isCaixas = item.unidade === 'caixas';
   const valorPorKgCentavos =
@@ -306,6 +301,7 @@ export function ListaComprando({ lista }: { lista: Lista }) {
   const finalizar = useListasStore((s) => s.finalizar);
   const catalogo = useCatalogoStore((s) => s.produtos);
   const show = useToastStore((s) => s.show);
+  const [renomeando, setRenomeando] = useState(false);
 
   const comValor = itensComValor(lista);
   const progresso = progressoLista(lista);
@@ -336,9 +332,7 @@ export function ListaComprando({ lista }: { lista: Lista }) {
     if (!ok) {
       const faltando = itensPendentesValor(lista);
       show(
-        faltando === 1
-          ? 'Falta o valor de 1 item'
-          : `Faltam os valores de ${faltando} itens`,
+        faltando === 1 ? 'Falta o valor de 1 item' : `Faltam os valores de ${faltando} itens`,
         'warning',
       );
     }
@@ -356,6 +350,14 @@ export function ListaComprando({ lista }: { lista: Lista }) {
           <ArrowLeft size={20} strokeWidth={2} />
         </button>
         <h1 className={styles.pageTitle}>{lista.nome}</h1>
+        <button
+          type="button"
+          className={styles.renomearBtn}
+          onClick={() => setRenomeando(true)}
+          aria-label="Renomear lista"
+        >
+          <Pencil size={16} strokeWidth={2} />
+        </button>
         <BadgeFase fase={lista.fase} size="sm" />
       </header>
 
@@ -375,9 +377,7 @@ export function ListaComprando({ lista }: { lista: Lista }) {
           <ItemRow
             key={item.produtoId}
             item={item}
-            onDefinirValor={(produtoId, centavos) =>
-              definirValor(lista.id, produtoId, centavos)
-            }
+            onDefinirValor={(produtoId, centavos) => definirValor(lista.id, produtoId, centavos)}
             onAtualizarQuantidade={(produtoId, quantidade) =>
               atualizarQuantidade(lista.id, produtoId, quantidade)
             }
@@ -404,14 +404,14 @@ export function ListaComprando({ lista }: { lista: Lista }) {
       <div className={styles.stickyFooter}>
         <div className={styles.totalRow}>
           <span className={styles.totalLabel}>Total geral</span>
-          <span className={`${styles.totalValor} tabular`}>
-            {formatarMoeda(totalCentavos)}
-          </span>
+          <span className={`${styles.totalValor} tabular`}>{formatarMoeda(totalCentavos)}</span>
         </div>
         <Button variant="primary" size="lg" fullWidth onClick={handleFinalizar}>
           Finalizar compra
         </Button>
       </div>
+
+      {renomeando && <RenomearListaSheet lista={lista} onFechar={() => setRenomeando(false)} />}
     </div>
   );
 }

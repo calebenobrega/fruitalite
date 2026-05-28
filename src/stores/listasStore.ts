@@ -15,6 +15,8 @@ type ListasState = {
   removerItem: (listaId: string, produtoId: string) => boolean;
   adicionarItens: (listaId: string, novosItens: ItemLista[]) => number;
   finalizar: (id: string) => boolean;
+  reabrir: (id: string) => boolean;
+  renomear: (id: string, nome: string) => boolean;
 };
 
 export const useListasStore = create<ListasState>()(
@@ -81,9 +83,7 @@ export const useListasStore = create<ListasState>()(
             if (l.fase === 'concluida') return l;
             return {
               ...l,
-              itens: l.itens.map((i) =>
-                i.produtoId === produtoId ? { ...i, unidade } : i,
-              ),
+              itens: l.itens.map((i) => (i.produtoId === produtoId ? { ...i, unidade } : i)),
             };
           }),
         }));
@@ -155,10 +155,31 @@ export const useListasStore = create<ListasState>()(
         if (!todosComValor) return false;
         set((s) => ({
           listas: s.listas.map((l) =>
-            l.id === id
-              ? { ...l, fase: 'concluida', finalizadaEm: new Date().toISOString() }
-              : l,
+            l.id === id ? { ...l, fase: 'concluida', finalizadaEm: new Date().toISOString() } : l,
           ),
+        }));
+        return true;
+      },
+
+      reabrir(id) {
+        const lista = get().listas.find((l) => l.id === id);
+        if (!lista) return false;
+        if (lista.fase !== 'concluida') return false;
+        set((s) => ({
+          listas: s.listas.map((l) =>
+            l.id === id ? { ...l, fase: 'comprando', finalizadaEm: null } : l,
+          ),
+        }));
+        return true;
+      },
+
+      renomear(id, nome) {
+        const limpo = nome.trim();
+        if (limpo === '') return false;
+        const lista = get().listas.find((l) => l.id === id);
+        if (!lista) return false;
+        set((s) => ({
+          listas: s.listas.map((l) => (l.id === id ? { ...l, nome: limpo } : l)),
         }));
         return true;
       },
