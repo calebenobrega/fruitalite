@@ -1,6 +1,6 @@
 {
   "name": "FruitaLite",
-  "short_name": "FruitaLite",
+  "short_name": "Fruita Lite",
   "description": "Gestor de listas de compras hortifrúti",
   "start_url": "/",
   "display": "standalone",
